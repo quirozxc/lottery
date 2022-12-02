@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+    <div class="text-center">
+        <form action="" method="post" style="max-width: 330px; padding: 15px;">
+            {% csrf_token %}
+            <h1 class="h2 mb-3 fw-normal">Actualizar Vendedor</h1>
+            <div class="form-floating mb-2">
+                <input type="text" class="form-control" name="username" value="{{ form.username.value }}" id="id_username" autocapitalize="none" autocomplete="username" maxlength="150" required placeholder="Nombre de Usuario">
+                <label for="id_username">Nombre de Usuario</label>
+            </div>
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
+            </div>
+            <div class="form-floating mt-4 mb-2">
+                <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" placeholder="Nombre">
+                <label for="id_first_name">Nombre</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="text" class="form-control" name="last_name" value="{{ form.last_name.value }}" id="id_last_name" maxlength="150" placeholder="Apellido">
+                <label for="id_last_name">Apellido</label>
+            </div>
+            <div class="text-start text-muted mb-3">
+                <span class="helptext">Estos campos no son requeridos.</span>
+            </div>
+            <div class="form-check form-switch text-start mb-2">
+                <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %}>
+                <label class="form-check-label" for="id_is_active">Casilla de estado Activo/Suspendido</label>
+            </div>
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">Designa si este usuario debe ser tratado como un vendedor activo. Anule la selección de esto en lugar de eliminar la cuenta.</span>
+            </div>
+            <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Actualizar Vendedor</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

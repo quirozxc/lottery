@@ -1,0 +1,55 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+    <div class="text-center">
+        <form action="{% url 'create_seller' %}" method="post" style="max-width: 330px; padding: 15px;">
+            {% csrf_token %}
+            <h1 class="h2 mb-3 fw-normal">Registrar Vendedor</h1>
+            <div class="form-floating mb-2">
+                <input type="text" class="form-control" name="username" id="id_username" autocapitalize="none" autocomplete="username" maxlength="150" required placeholder="Nombre de Usuario">
+                <label for="id_username">Nombre de Usuario</label>
+            </div>
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
+            </div>
+
+            <div class="form-floating mt-4 mb-2">
+                <input type="text" class="form-control" name="first_name" id="id_first_name" maxlength="150" placeholder="Nombre">
+                <label for="id_first_name">Nombre</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="text" class="form-control" name="last_name" id="id_last_name" maxlength="150" placeholder="Apellido">
+                <label for="id_last_name">Apellido</label>
+            </div>
+            <div class="text-start text-muted mb-3">
+                <span class="helptext">Estos campos no son requeridos.</span>
+            </div>
+
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">
+                    <span>Su contraseña...</span>
+                    <ul>
+                        <li>No puede ser similar a su otra información personal.</li>
+                        <li>Debe contener al menos 8 caracteres.</li>
+                        <li>No puede ser una contraseña de uso común.</li>
+                        <li>No puede ser completamente numérica.</li>
+                    </ul>
+                </span>
+            </div>
+
+            <div class="form-floating mb-2">
+                <input type="password" class="form-control" name="password1" id="id_password1" autocomplete="new-password" maxlength="128" required placeholder="Contraseña">
+                <label for="id_password1">Contraseña</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="password2" id="id_password2" autocomplete="new-password" maxlength="128" required placeholder="Confimación de Contraseña">
+                <label for="id_password2">Confirmación de Contraseña</label>
+            </div>
+            <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Registrar Vendedor</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
