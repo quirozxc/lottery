@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center py-3">
     <div class="text-center">
-        <form action="{% url 'create_seller' %}" method="post" style="max-width: 330px; padding: 15px;">
+        <form action="{% url 'create_seller' %}" method="post" style="max-width: 480px;">
             {% csrf_token %}
             <h1 class="h2 mb-3 fw-normal">Registrar Vendedor</h1>
             <div class="form-floating mb-2">
@@ -43,11 +43,14 @@
                 <input type="password" class="form-control" name="password1" id="id_password1" autocomplete="new-password" maxlength="128" required placeholder="Contraseña">
                 <label for="id_password1">Contraseña</label>
             </div>
-            <div class="form-floating mb-3">
+            <div class="form-floating mb-4">
                 <input type="password" class="form-control" name="password2" id="id_password2" autocomplete="new-password" maxlength="128" required placeholder="Confimación de Contraseña">
                 <label for="id_password2">Confirmación de Contraseña</label>
             </div>
-            <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Registrar Vendedor</button>
+            <div class="d-grid gap-2 d-flex justify-content-end">
+                <a href="{% url 'list_seller' %}" class="btn btn-lg btn-outline-danger">Cancelar</a>
+                <button class="btn btn-lg btn-outline-primary" type="submit">Registrar Vendedor</button>
+            </div>
         </form>
     </div>
 </div>

@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center py-3">
     <div class="text-center">
-        <form action="" method="post" style="max-width: 330px; padding: 15px;">
+        <form action="" method="post" style="max-width: 480px;">
             {% csrf_token %}
             <h1 class="h2 mb-3 fw-normal">Actualizar Vendedor</h1>
             <div class="form-floating mb-2">
@@ -32,7 +32,10 @@
             <div class="text-start text-muted mb-4">
                 <span class="helptext">Designa si este usuario debe ser tratado como un vendedor activo. Anule la selección de esto en lugar de eliminar la cuenta.</span>
             </div>
-            <button class="w-100 btn btn-lg btn-outline-primary" type="submit">Actualizar Vendedor</button>
+            <div class="d-grid gap-2 d-flex justify-content-end">
+                <a href="{% url 'list_seller' %}" class="btn btn-lg btn-outline-danger">Cancelar</a>
+                <button class="btn btn-lg btn-outline-primary" type="submit">Guardar Cambios</button>
+            </div>
         </form>
     </div>
 </div>

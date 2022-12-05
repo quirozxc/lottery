@@ -38,11 +38,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # To execute Python code recursively and automatically.
+    # Used in lottery.draw.
+    'django_cron', 
+
     'user',
     'lottery',
     'draw',
     'trade',
 ]
+
+
+CRON_CLASSES = [
+    'lottery.cron.DrawJob',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,6 +77,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Currency badge renderer from settings
+                'trade.utils.get_currency_badge',
+                # Minimun bet renderer from settings
+                'trade.utils.get_minimum_bet',
             ],
         },
     },
@@ -150,3 +164,11 @@ AUTH_USER_MODEL = 'user.User'
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'index/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
+
+HOLIDAYS = '24/12;25/12;31/12;01/01;01/05'
+
+CURRENCY_BADGE = 'Bs.S'
+
+MINIMUM_BET = 10
+
+DRAW_CLOSE_MINUTES = 5

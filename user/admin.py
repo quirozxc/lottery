@@ -16,11 +16,11 @@ class UserAdmin(_UserAdmin):
             'fields': ('first_name', 'last_name', 'email')
         }),
         ('Lottery info', {
-            'fields': ('is_banker', 'is_betting_agency_staff', 'banker', 'betting_agency')
+            'fields': ('betting_agency', 'is_banker', 'is_betting_agency_staff',)
         }),
         ('Other', {
             'fields': ('is_active',)
         }),
     )
-    
+#
 admin.site.register(User, UserAdmin)

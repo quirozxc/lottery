@@ -46,6 +46,10 @@ class BettingAgency(models.Model):
         db_table = 'betting_agency'
         verbose_name = 'Betting Agency'
     #
+    def get_lotteries(self):
+        lotteries = self.pattern_set.values_list('lottery', flat=True).distinct()
+        return Lottery.objects.filter(pk__in=lotteries)
+    #
     def __str__(self): return self.name
 #
 class Icon(models.Model):

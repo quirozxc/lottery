@@ -60,7 +60,7 @@ def password_change(request):
     return render(request, 'password_change.html', context)
 #
 
-
+# Decorator
 def banker_required(function):
     def wrap(request, *args, **kwargs):
         if not request.user.is_banker:
@@ -77,7 +77,7 @@ def create_seller(request):
     if request.method == 'POST':
         form = SellerCreateForm(request.POST)
         if form.is_valid():
-            seller = form.save()
+            seller = form.save(commit=False)
             # Indicator of sellers belonging to the banker/betting agency
             seller.banker = request.user
             seller.betting_agency = request.user.betting_agency
