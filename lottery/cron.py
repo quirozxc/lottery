@@ -12,6 +12,12 @@ def is_holiday(holidays=settings.HOLIDAYS):
         if datetime.today().strftime('%d/%m') == hdaystr: return True
     return False
 #
+def draw_job():
+    if not is_holiday():
+        for lottery in Lottery.objects.all():
+            for turn in lottery.schedule_set.filter(day__exact=datetime.today().weekday()):
+                Draw(schedule=turn).save()
+#
 class DrawJob(CronJobBase):
     RUN_AT_TIMES = ['00:00']
 
@@ -19,7 +25,4 @@ class DrawJob(CronJobBase):
     code = 'lottery.draw_job'
 
     def do(self):
-        if not is_holiday():
-            for lottery in Lottery.objects.all():
-                for turn in lottery.schedule_set.filter(day__exact=datetime.today().weekday()):
-                    Draw(schedule=turn).save()
+        draw_job()

@@ -12,14 +12,7 @@
         </a>
 
         <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-            <a class="ms-3 py-2 text-dark text-decoration-none" href="#">Estadísticas</a>
-            <div class="dropdown">
-                <a class="ms-3 py-2 text-dark text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Tickets</a>
-                <ul class="dropdown-menu text-end">
-                    <li><a class="dropdown-item" href="#">Anular último</a></li>
-                    <li><a class="dropdown-item" href="#">Reimprimir último</a></li>
-                </ul>
-            </div>
+            <a class="ms-3 py-2 text-dark text-decoration-none" href="{% url 'last_ticket' %}">Último Ticket</a>
             {% if request.user.is_banker %}
                 <a class="ms-3 py-2 text-dark text-decoration-none" href="{% url 'list_seller' %}">Vendedores</a>
             {% endif %}

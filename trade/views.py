@@ -1,8 +1,9 @@
 from django.shortcuts import redirect, render, get_object_or_404
+
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
-from django.db.models import F
+from django.contrib.auth.decorators import login_required
 
 from datetime import datetime, timedelta as td
 
@@ -14,6 +15,7 @@ from draw.models import Draw
 
 # Create your views here.
 @csrf_protect
+@login_required(redirect_field_name=None)
 def sell_ticket(request, lottery):
     lottery = get_object_or_404(Lottery, pk=lottery)
     # Redirect if the lottery to select it does not belong to the betting_agency of the current user
@@ -62,7 +64,7 @@ def sell_ticket(request, lottery):
                     bet_amount=int(bet_amount)
                 ).save()
             messages.success(request, 'Un ticket ha sido generado.', extra_tags='alert-success')
-            return redirect(reverse('ticket_status', kwargs= {'ticket': ticket.pk}))
+            return redirect(reverse('ticket_status', kwargs= {'ticket': ticket.pk, 'post_sale': int(True)}))
         except Exception as e:
             ticket.delete()
             messages.error(request, 'Error inesperado, el ticket no fue generado.', extra_tags='alert-danger')
@@ -76,7 +78,62 @@ def sell_ticket(request, lottery):
         'pattern_list': lottery.pattern_set.all()
     }
     return render(request, 'sell-ticket.html', context)
-
-def ticket_status(request, ticket):
+#
+@login_required(redirect_field_name=None)
+def ticket_status(request, ticket, post_sale=False):
     ticket = get_object_or_404(Ticket, pk=ticket)
-    return render(request, 'ticket_status.html', {'ticket': ticket})
+    return render(request, 'ticket_status.html', {'ticket': ticket, 'post_sale': post_sale})
+#
+@login_required(redirect_field_name=None)
+def invalidate_ticket(request, ticket):
+    ticket = get_object_or_404(Ticket, pk=ticket)
+    ticket.is_invalidated = True
+    ticket.save()
+    messages.warning(request, 'Ticket invalidado.', extra_tags='alert-warning')
+    return redirect(reverse('ticket_status', kwargs= {'ticket': ticket.pk}))
+#
+@login_required(redirect_field_name=None)
+def print_ticket(request, ticket):
+    ticket = get_object_or_404(Ticket, pk=ticket)
+    return render(request, 'to_print.html', context={'ticket': ticket})
+#
+@login_required(redirect_field_name=None)
+def last_ticket(request):
+    try:
+        return render(request, 'ticket_status.html', {'ticket': request.user.ticket_set.last()})
+    except:
+        messages.warning(request, 'No ha vendido tickets aún.', extra_tags='alert-warning')
+    return redirect('index')
+
+
+
+
+
+
+
+
+
+
+# from django.http import HttpResponse
+# from xhtml2pdf import pisa
+# from django.template.loader import get_template
+# from io import BytesIO
+
+# @login_required(redirect_field_name=None)
+# def print_ticket_copia(request, ticket):
+#     ticket = get_object_or_404(Ticket, pk=ticket)
+#     buffer = BytesIO()
+#     template = get_template('to_print.html')
+#     context = {
+#         'ticket': ticket
+#     }
+#     html = template.render(context)
+#     pisa_status = pisa.CreatePDF(html, dest=buffer)
+#     if pisa_status.err:
+#         messages.error(request, 'Error inesperado, el ticket no fue enviado a impresión', extra_tags='alert-danger')
+#         return redirect(reverse('ticket_status', kwargs= {'ticket': ticket.pk}))
+#     response = HttpResponse(buffer.getvalue(), headers={
+#         'Content-Type': 'application/pdf',
+#         # 'Content-Disposition': 'attachment; filename="ticket.pdf"',
+#     })
+#     return response

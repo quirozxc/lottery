@@ -5,3 +5,6 @@ def get_currency_badge(request):
 
 def get_minimum_bet(request):
     return { 'MINIMUN_BET': settings.MINIMUM_BET, }
+
+def get_tax_prefix(request):
+    return { 'TAX_PREFIX': settings.TAX_PREFIX, }

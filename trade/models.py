@@ -3,6 +3,7 @@ from lottery.models import Icon
 from draw.models import Draw
 from user.models import User
 
+from decimal import Decimal
 import uuid
 
 # Create your models here.
@@ -18,11 +19,23 @@ class Ticket(models.Model):
     class Meta:
         db_table = 'ticket'
     #
+    def get_total_bet_amount(self):
+        t_amount = Decimal('0.00')
+        try:
+            for row in self.rowticket_set.all():
+                t_amount += row.bet_amount
+        except: None
+        return t_amount
+    #
+    def get_lottery(self):
+        return self.rowticket_set.first().draw.schedule.lottery.name
+    #
     def save(self, *args, **kwargs):
-        self.unique_number = uuid.uuid4().int & (1<<31)-1
+        if not self.unique_number:
+            self.unique_number = uuid.uuid4().int & (1<<31)-1
         super(Ticket, self).save(*args, **kwargs)
     #
-    def __str__(self): return 'ticket #%d - serial: %d' % (self.pk, self.unique_number)
+    def __str__(self): return 'ticket #%d - serial: %s' % (self.pk, self.unique_number)
 #
 class RowTicket(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)

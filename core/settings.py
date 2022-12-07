@@ -78,9 +78,11 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 # Currency badge renderer from settings
-                'trade.utils.get_currency_badge',
+                'core.utils.get_currency_badge',
                 # Minimun bet renderer from settings
-                'trade.utils.get_minimum_bet',
+                'core.utils.get_minimum_bet',
+                # Tax prefix renderer from settings
+                'core.utils.get_tax_prefix',
             ],
         },
     },
@@ -168,6 +170,8 @@ LOGOUT_REDIRECT_URL = LOGIN_URL
 HOLIDAYS = '24/12;25/12;31/12;01/01;01/05'
 
 CURRENCY_BADGE = 'Bs.S'
+
+TAX_PREFIX = 'RIF'
 
 MINIMUM_BET = 10
 

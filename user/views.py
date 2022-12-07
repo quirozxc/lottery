@@ -59,7 +59,6 @@ def password_change(request):
     }
     return render(request, 'password_change.html', context)
 #
-
 # Decorator
 def banker_required(function):
     def wrap(request, *args, **kwargs):
@@ -68,9 +67,8 @@ def banker_required(function):
             return redirect('index')
         return function(request, *args, **kwargs)
     return wrap
-
-
-
+#
+#
 @login_required(redirect_field_name=None)
 @banker_required
 def create_seller(request):
@@ -115,5 +113,19 @@ def change_seller(request, seller):
     context = {
         'page_title': 'Actualizar Vendedor',
         'form': SellerChangeForm(instance=seller),
+        'seller': seller,
     }
     return render(request, 'change_seller.html', context)
+#
+@login_required(redirect_field_name=None)
+@banker_required
+def reset_password(request, seller):
+    seller = get_object_or_404(User, pk=seller)
+    if seller.banker == request.user:
+        seller.set_password('12345678')
+        seller.save()
+        messages.success(request, 'La contraseña para: "'+seller.username +'", ha sido reseteada.', extra_tags='alert-success')
+        return redirect('list_seller')
+    else:
+        messages.warning(request, 'No tiene permisos para realizar esta acción.', extra_tags='alert-warning')
+    return redirect('index')

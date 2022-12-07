@@ -14,6 +14,9 @@
             <div class="text-start text-muted mb-4">
                 <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
             </div>
+            <div class="text-start text-muted mb-4">
+                <span>Si el vendedor ha olvidado la contraseña, puede presionar <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>12345678</i></span>
+            </div>
             <div class="form-floating mt-4 mb-2">
                 <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" placeholder="Nombre">
                 <label for="id_first_name">Nombre</label>

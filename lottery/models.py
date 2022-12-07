@@ -38,6 +38,7 @@ class Schedule(models.Model):
 #
 class BettingAgency(models.Model):
     name = models.CharField('Name of betting agency', max_length=150)
+    tax_id = models.CharField('Tax Identification Number', max_length=15)
     description = models.CharField('Betting agency description', max_length=512, null=True, blank=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
