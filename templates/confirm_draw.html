@@ -1,0 +1,26 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <h1 class="h2 mb-3 fw-normal">Confirmacion de Resultado</h1>
+        <h5 class="mb-3"> {{ draw_result.draw.schedule.lottery.name }} </h5>
+        
+        <div class="form-floating mb-2">
+            <input type="text" class="form-control" name="draw" id="id_draw" value="{{ draw_result.draw.schedule.turn|date:'h:i A' }}" readonly placeholder="Sorteo">
+            <label for="id_draw">Sorteo</label>
+        </div>
+        <div class="form-floating mb-4">
+            <input type="text" class="form-control" name="icon" id="id_icon" value="{{ draw_result.icon.name }}" readonly placeholder="Ficha">
+            <label for="id_icon">Ficha</label>
+        </div>
+
+        <div class="d-grid gap-2 d-flex justify-content-end">
+            <a href="{% url 'delete_draw' draw_result.pk %}" class="btn btn-lg btn-outline-danger">Eliminar</a>
+            <a href="{% url 'index' %}" class="btn btn-lg btn-outline-primary">Confirmado</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

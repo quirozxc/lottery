@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-center py-3">
+<div class="justify-content-center py-3">
     <div class="text-center">
-        <form action="{% url 'create_seller' %}" method="post" style="max-width: 480px;">
+        <form action="" method="post">
             {% csrf_token %}
             <h1 class="h2 mb-3 fw-normal">Registrar Vendedor</h1>
             <div class="form-floating mb-2">
@@ -16,15 +16,12 @@
             </div>
 
             <div class="form-floating mt-4 mb-2">
-                <input type="text" class="form-control" name="first_name" id="id_first_name" maxlength="150" placeholder="Nombre">
+                <input type="text" class="form-control" name="first_name" id="id_first_name" maxlength="150" required placeholder="Nombre">
                 <label for="id_first_name">Nombre</label>
             </div>
-            <div class="form-floating mb-2">
-                <input type="text" class="form-control" name="last_name" id="id_last_name" maxlength="150" placeholder="Apellido">
+            <div class="form-floating mb-4">
+                <input type="text" class="form-control" name="last_name" id="id_last_name" maxlength="150" required placeholder="Apellido">
                 <label for="id_last_name">Apellido</label>
-            </div>
-            <div class="text-start text-muted mb-3">
-                <span class="helptext">Estos campos no son requeridos.</span>
             </div>
 
             <div class="text-start text-muted mb-4">

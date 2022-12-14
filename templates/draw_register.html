@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <form action="" method="post">
+            {% csrf_token %}
+            <h1 class="h2 mb-3 fw-normal">Registrar Resultados de Sorteo</h1>
+            <h2 class="fs-5 mb-3 text-muted">{{ lottery }}</h2>
+
+            <div class="form-floating mb-2">
+                <select class="form-select" name="draw_to_register" required id="id_draw_selection">
+                    <option  value="" selected="selected">Seleccione...</option>
+                    {% for draw in draw_to_register_list %}
+                        <option value="{{ draw.pk }}">{{ draw.schedule.turn|date:'h:i A' }}</option>
+                    {% endfor %}
+                </select>
+                <label class="" for="id_draw_selection">Hora del sorteo</label>
+            </div>
+
+            <div class="form-floating mb-4">
+                <select class="form-select" name="icon" required id="id_pattern_selection">
+                    <option  value="" selected="selected">Seleccione...</option>
+                    {% for pattern_row in pattern_list %}
+                        <option value="{{ pattern_row.icon.pk }}">{{ pattern_row.icon }}</option>
+                    {% endfor %}
+                </select>
+                <label class="" for="id_pattern_selection">Ficha Ganadora</label>
+            </div>
+
+            <div class="d-grid gap-2 d-flex justify-content-end">
+                <a href="{% url 'index' %}" class="btn btn-lg btn-outline-danger">Cancelar</a>
+                <button class="btn btn-lg btn-outline-success" type="submit">Continuar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

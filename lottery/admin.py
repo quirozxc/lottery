@@ -19,7 +19,7 @@ class PatternInline(admin.TabularInline):
     model = Pattern
     extra = 1
 class BettingAgencyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tax_id', 'description',)
+    list_display = ('name', 'tax_id', 'description', 'currency', 'minimum_bet',)
     inlines = (PatternInline,)
 admin.site.register(BettingAgency, BettingAgencyAdmin)
 #

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from .forms import LoginForm, SellerCreateForm, SellerChangeForm
-
+from .decorators import banker_required, user_active_required
 from .models import User
 
 # Create your views here.
@@ -59,18 +59,9 @@ def password_change(request):
     }
     return render(request, 'password_change.html', context)
 #
-# Decorator
-def banker_required(function):
-    def wrap(request, *args, **kwargs):
-        if not request.user.is_banker:
-            messages.warning(request, 'No tiene permisos para realizar esta acción.', extra_tags='alert-warning')
-            return redirect('index')
-        return function(request, *args, **kwargs)
-    return wrap
-#
-#
-@login_required(redirect_field_name=None)
 @banker_required
+@user_active_required
+@login_required(redirect_field_name=None)
 def create_seller(request):
     if request.method == 'POST':
         form = SellerCreateForm(request.POST)
@@ -82,7 +73,7 @@ def create_seller(request):
             seller.save()
             #
             messages.success(request, '¡Nuevo vendedor registrado!', extra_tags='alert-success')
-            return redirect('sellers')
+            return redirect('list_seller')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
         'page_title': 'Registrar Vendedor',
@@ -97,10 +88,11 @@ def list_seller(request):
     context = {
         'seller_list': seller_list
     }
-    return render(request, 'seller.html', context)
+    return render(request, 'seller_list.html', context)
 #
-@login_required(redirect_field_name=None)
 @banker_required
+@user_active_required
+@login_required(redirect_field_name=None)
 def change_seller(request, seller):
     seller = get_object_or_404(User, pk=seller)
     if request.method == 'POST':
@@ -117,8 +109,9 @@ def change_seller(request, seller):
     }
     return render(request, 'change_seller.html', context)
 #
-@login_required(redirect_field_name=None)
 @banker_required
+@user_active_required
+@login_required(redirect_field_name=None)
 def reset_password(request, seller):
     seller = get_object_or_404(User, pk=seller)
     if seller.banker == request.user:

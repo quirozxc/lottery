@@ -1,33 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Ticket</title>
-    {% load static %}
-</head>
-<body>
-    <div>
-        <h4>{{ ticket.user.betting_agency }}</h4>
-        <p>{{ TAX_PREFIX }} {{ ticket.user.betting_agency.tax_id }} </p>
-        <p>Ticket #{{ ticket.unique_number }}</p>
-        <p>{{ ticket.get_lottery }}</p>
-        <p>Cliente: {{ ticket.client }}</p>
-        <p>Fecha: {{ ticket.timestamp|date:'d/m/Y' }} {{ ticket.timestamp|date:'h:i a' }}</p>
-        <p>Vendedor: {{ ticket.user.get_full_name }}</p>
-        <p>--------------------------------</p>
-        {% for row in ticket.rowticket_set.all %}
-        <p>{{ row.draw.schedule.turn|date:'h:i A' }} - {{ row.icon.name }} - {{ CURRENCY_BADGE }} {{ row.bet_amount }}</p>
-            {% empty %}
-                <h4>Sin sorteos</h4>
-        {% endfor %}
-        <p>--------------------------------</p>
-        <h4>Total de apuesta: {{ CURRENCY_BADGE }} {{ ticket.get_total_bet_amount }}</h4>
-    </div>
-</body>
-<script>
-    window.print();
-</script>
-</html>
+
+<div id="to_print">
+    <h4>{{ ticket.user.betting_agency }}</h4>
+    <p>{{ TAX_PREFIX }} {{ ticket.user.betting_agency.tax_id }} </p>
+    <p>Ticket #{{ ticket.get_readable_uuid }}</p>
+    <p>{{ ticket.get_lottery.name }}</p>
+    <p>Cliente: {{ ticket.client|default:"No Aplica" }}</p>
+    <p>Fecha: {{ ticket.timestamp|date:'d/m/Y' }} {{ ticket.timestamp|date:'h:i a' }}</p>
+    <p>Vendedor: {{ ticket.user.get_full_name }}</p>
+    <p>--------------------------------</p>
+    {% for row in ticket.rowticket_set.all %}
+    <p>{{ row.draw.schedule.turn|date:'h:i A' }} - {{ row.icon.name }} - {{ request.user.betting_agency.get_currency_display }} {{ row.bet_amount }}</p>
+        {% empty %}
+            <h4>Sin sorteos</h4>
+    {% endfor %}
+    <p>--------------------------------</p>
+    <h4>Total de apuesta: {{ request.user.betting_agency.get_currency_display }} {{ ticket.get_total_bet_amount }}</h4>
+</div>

@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-center py-3">
+<div class="justify-content-center py-3">
     <div class="text-center">
         <div class="d-flex w-100 justify-content-between mb-3">
             <h1 class="h2 px-2 fw-normal my-auto">Lista de Vendedores</h1>
@@ -15,9 +15,9 @@
                 </a>
             </div>
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive mb-2">
             <table class="table table-hover align-middle">
-                <caption class="">Presiona el icono de la derecha de cada fila para actualizar.</caption>
+                <caption>Presiona el icono de la derecha de cada fila para actualizar.</caption>
                 <thead>
                     <th scope="col">#</th>
                     <th scope="col">Usuario</th>
@@ -60,6 +60,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'index' %}" type="button" class="btn btn-lg btn-outline-primary">Regresar</a>
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@
             {% if request.user.is_banker %}
                 <a class="ms-3 py-2 text-dark text-decoration-none" href="{% url 'list_seller' %}">Vendedores</a>
             {% endif %}
-            <div class="dropdown">
+            <div class="dropdown my-auto">
                 <a class="ms-3 py-2 text-dark text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {{ request.user.username }}
                 </a>

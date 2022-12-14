@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <h1 class="h2 mb-3 fw-normal">Buscar ticket</h1>
+    </div>
+</div>
+<form class="row g-0 mb-2" action="{% url 'search_ticket' %}">
+    <div class="col-10 col-md-11">
+        <div class="input-group mb-3">
+            <span class="input-group-text">Ticket</span>
+            <div class="form-floating">
+                <input type="number" class="form-control" id="id_search_ticket" name="ticket" value="{{ raw_ticket }}" placeholder="Número de ticket" required>
+                <label for="id_search_ticket">Ingresa el número para buscar</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-2 col-md-1">
+        <button class="btn btn-link my-1" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" fill="currentColor" class="bi bi-search text-dark" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+        </button>
+    </div>
+</form>
+
+<div class="py-3">
+    <div class="list-group mb-3">
+        {% for winner in winner_row_ticket_found_list %}
+            <a href="{% url 'winning_ticket' winner.row_ticket.pk %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Ticket: #{{ winner.row_ticket.ticket.get_readable_uuid }}</h5>
+                    <small class="text-end">Fecha de registro: {{ winner.row_ticket.ticket.timestamp|date:'d/m/Y - h:i A' }}</small>
+                </div>
+                <p class="mb-1">{{ winner.row_ticket.ticket.user.betting_agency }}</p>
+                <p class="mb-1">{{ winner.row_ticket.ticket.get_lottery.name }}</p>
+                <small>Cliente: {{ winner.row_ticket.ticket.client|default:"No Aplica" }}</small>
+                <br>
+                <small>Vendedor: {{ winner.row_ticket.ticket.user.get_full_name }}</small>
+            </a>
+            {% empty %}
+            <span class="fs-5 text-muted text-center">No hay ticket ganador que coincida con Nº...{{ raw_ticket }}</span>
+        {% endfor %}
+    </div>
+</div>
+<div class="text-end">
+    <a href="{% url 'index' %}" type="button" class="btn btn-lg btn-outline-primary">Regresar</a>
+</div>
+
+{% endblock %}

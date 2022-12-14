@@ -14,3 +14,9 @@ class User(AbstractUser):
         db_table = 'user'
     #
     def get_full_name(self): return '%s %s' % (self.first_name, self.last_name)
+    #
+    def clean(self):
+        self.username = self.username.lower()
+        self.first_name = self.first_name.title()
+        self.last_name = self.last_name.title()
+        return super().clean()

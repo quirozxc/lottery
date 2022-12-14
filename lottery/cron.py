@@ -6,9 +6,7 @@ from .models import Lottery
 from draw.models import Draw
 
 def is_holiday(holidays=settings.HOLIDAYS):
-    hstrlist = holidays.split(';')
-    #
-    for hdaystr in hstrlist:
+    for hdaystr in holidays:
         if datetime.today().strftime('%d/%m') == hdaystr: return True
     return False
 #

@@ -1,0 +1,53 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <h1 class="h2 mb-3 fw-normal">Datos de Ticket</h1>
+        <p class="text-end">Nº {{ winner_row_ticket.ticket.get_readable_uuid }}</p>
+        <h4 class="mb-3"> {{ winner_row_ticketticket.get_lottery.name }} </h4>
+        <div class="form-floating mb-2">
+            <input type="text" class="form-control" name="client" id="id_client" value="{{ ticket.client|default:'No Aplica' }}" readonly placeholder="Cliente">
+            <label for="id_client">Cliente</label>
+        </div>
+        <div class="text-start text-muted mb-4">
+            <span class="helptext">Es un producto solo para mayores de edad.</span>
+        </div>
+        <h3 class="mb-4">¡Ganador!</h3>
+        <div class="text-end mb-2">
+            <span>Fecha: {{ winner_row_ticket.ticket.timestamp|date:'d/m/Y' }}</span>
+            <br>
+            <span>Hora: {{ winner_row_ticket.ticket.timestamp|date:'h:i a' }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <caption class="">Sorteo ganador correspondiente.</caption>
+                <thead>
+                    <th scope="col">#</th>
+                    <th scope="col">Sorteo</th>
+                    <th scope="col">Ficha</th>
+                    <th scope="col" class="text-end">Monto</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>{{ winner_row_ticket.draw.schedule.turn|date:'h:i A' }}</td>
+                        <td>{{ winner_row_ticket.icon.name }}</td>
+                        <td class="text-end">{{ winner_row_ticket.ticket.user.betting_agency.get_currency_display }} {{ winner_row_ticket.bet_amount }}</td>
+                    </tr>
+                    <tr class="fw-bold fs-5">
+                        <td colspan="3" class="text-start">Total a pagar:</td>
+                        <td class="text-end">{{ winner_row_ticket.ticket.user.betting_agency.get_currency_display }} {{ winner_row_ticket.bet_amount_to_pay }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-grid gap-2 d-flex justify-content-end">
+            <a href="{% url 'index' %}" class="btn btn-lg btn-outline-danger">Regresar</a>
+            <a href="{% url 'pay_row_ticket' winner_row_ticket.pk %}" class="btn btn-lg btn-outline-primary">Marcar Pagado</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

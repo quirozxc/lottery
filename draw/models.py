@@ -6,13 +6,14 @@ from datetime import datetime
 # Create your models here.
 class Draw(models.Model):
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
-    def get_available_turns(self, lottery):
-        return self.objects.filter(schedule__lottery__exact=lottery).filter(schedule__day__exact=datetime.today().weekday()) or None
     class Meta:
         db_table = 'draw'
+    #
+    def __str__(self): return '%s - date: %s' % (self.schedule, self.date,)
 
 class DrawResult(models.Model):
     draw = models.ForeignKey(Draw, on_delete=models.CASCADE)

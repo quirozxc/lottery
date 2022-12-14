@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 class Lottery(models.Model):
@@ -40,6 +41,8 @@ class BettingAgency(models.Model):
     name = models.CharField('Name of betting agency', max_length=150)
     tax_id = models.CharField('Tax Identification Number', max_length=15)
     description = models.CharField('Betting agency description', max_length=512, null=True, blank=True)
+    currency = models.CharField('Currency', max_length=2, choices=[(str(i), settings.CURRENCY[i]) for i in range(0, len(settings.CURRENCY))])
+    minimum_bet = models.PositiveIntegerField('Minimum bet')
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #

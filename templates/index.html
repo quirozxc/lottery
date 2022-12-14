@@ -4,8 +4,27 @@
 
 <div class="text-center">
     <h1 class="display-4 fw-normal">{{ request.user.betting_agency }}</h1>
-    <p class="fs-5 text-muted">{{ request.user.betting_agency.description }}</p>
+    <p class="fs-5 text-muted mb-4">{{ request.user.betting_agency.description }}</p>
 </div>
+
+<form class="row g-0 mb-2" action="{% url 'search_ticket' %}">
+    <div class="col-10 col-md-11">
+        <div class="input-group mb-3">
+            <span class="input-group-text">Ticket</span>
+            <div class="form-floating">
+                <input type="number" class="form-control" id="id_search_ticket" name="ticket" placeholder="Número de ticket" required>
+                <label for="id_search_ticket">Ingresa el número para buscar</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-2 col-md-1">
+        <button class="btn btn-link my-1" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" fill="currentColor" class="bi bi-search text-dark" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+        </button>
+    </div>
+</form>
 
 <div class="row row-cols-1 row-cols-sm-2 mb-3 text-center">
     {% for lottery in request.user.betting_agency.get_lotteries %}
@@ -19,10 +38,10 @@
             <div class="card-body">
                 <span class="fs-5 card-title text-center">{{ lottery }}</span>
                 <p class="card-text text-muted mt-2">Para vender un ticket de esta lotería presiona la imagen correspondiente o el botón debajo de este texto de ayuda.</p>
-                <div class="d-grid gap-2 d-md-block">
-                    <a href="{% url 'sell_ticket' lottery.pk %}" type="button" class="p-3 btn btn-outline-primary">Vender ticket</a>
-                    {% if request.user.is_banker %}
-                        <a href="#" type="button" class="p-3 btn btn-outline-dark">Registrar Sorteo</a>
+                <div class="d-grid gap-2 d-block">
+                    <a href="{% url 'sell_ticket' lottery.pk %}" type="button" class="p-3 btn btn-outline-primary m-1">Vender Ticket</a>
+                    {% if request.user.is_betting_agency_staff %}
+                        <a href="{% url 'draw_register' lottery.pk %}" type="button" class="p-3 btn btn-outline-dark m-1">Registrar Sorteo</a>
                     {% endif %}
                 </div>
             </div>

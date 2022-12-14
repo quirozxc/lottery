@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-center py-3">
+<div class="justify-content-center py-3">
     <div class="text-center">
-        <form action="" method="post" style="max-width: 480px;">
+        <form action="" method="post">
             {% csrf_token %}
             <h1 class="h2 mb-3 fw-normal">Actualizar Vendedor</h1>
             <div class="form-floating mb-2">
@@ -18,15 +18,12 @@
                 <span>Si el vendedor ha olvidado la contraseña, puede presionar <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>12345678</i></span>
             </div>
             <div class="form-floating mt-4 mb-2">
-                <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" placeholder="Nombre">
+                <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" required placeholder="Nombre">
                 <label for="id_first_name">Nombre</label>
             </div>
-            <div class="form-floating mb-2">
-                <input type="text" class="form-control" name="last_name" value="{{ form.last_name.value }}" id="id_last_name" maxlength="150" placeholder="Apellido">
+            <div class="form-floating mb-4">
+                <input type="text" class="form-control" name="last_name" value="{{ form.last_name.value }}" id="id_last_name" maxlength="150" required placeholder="Apellido">
                 <label for="id_last_name">Apellido</label>
-            </div>
-            <div class="text-start text-muted mb-3">
-                <span class="helptext">Estos campos no son requeridos.</span>
             </div>
             <div class="form-check form-switch text-start mb-2">
                 <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %}>

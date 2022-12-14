@@ -7,7 +7,7 @@ from .models import User
 admin.site.unregister(Group)
 
 class UserAdmin(_UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name',)
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_banker', 'is_betting_agency_staff', 'is_active')
     fieldsets = (
         (None, {
             'fields': ('username', 'password',)

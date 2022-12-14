@@ -71,7 +71,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['./templates',],
+        'DIRS': [BASE_DIR / 'templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,10 +79,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Currency badge renderer from settings
-                'core.utils.get_currency_badge',
-                # Minimun bet renderer from settings
-                'core.utils.get_minimum_bet',
                 # Tax prefix renderer from settings
                 'core.utils.get_tax_prefix',
             ],
@@ -109,7 +105,7 @@ DATABASES = {
         'NAME': config('DATABASE_NAME'),
         'USER': config('DATABASE_USER'),
         'PASSWORD': config('DATABASE_PASS'),
-        'HOST': 'localhost',
+        'HOST': config('DATABASE_HOST'),
         'PORT': '3306',
     }
 }
@@ -153,6 +149,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
 
 #
 MEDIA_URL = 'media/'
@@ -169,12 +166,10 @@ LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'index/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
-HOLIDAYS = '24/12;25/12;31/12;01/01;01/05'
+HOLIDAYS = ['24/12', '25/12', '31/12', '01/01', '01/05']
 
-CURRENCY_BADGE = 'Bs.S'
+CURRENCY = ['Bs.S', 'USD', 'COP']
 
 TAX_PREFIX = 'RIF'
-
-MINIMUM_BET = 10
 
 DRAW_CLOSE_MINUTES = 5
