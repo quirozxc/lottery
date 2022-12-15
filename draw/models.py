@@ -13,7 +13,7 @@ class Draw(models.Model):
     class Meta:
         db_table = 'draw'
     #
-    def __str__(self): return '%s - date: %s' % (self.schedule, self.date,)
+    def __str__(self): return '%s - Date: %s' % (self.schedule, self.date,)
 
 class DrawResult(models.Model):
     draw = models.ForeignKey(Draw, on_delete=models.CASCADE)
@@ -24,3 +24,5 @@ class DrawResult(models.Model):
     class Meta:
         db_table = 'draw_result'
         verbose_name = 'Draw Result'
+    #
+    def __str__(self): return '%s - Result: %s' % (self.draw, self.icon.name)

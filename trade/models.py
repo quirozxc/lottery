@@ -31,7 +31,7 @@ class Ticket(models.Model):
     #
     def get_readable_uuid(self): return str(self.uuid.int)[-10:]
     #
-    def __str__(self): return 'ticket #%d - serial: %s' % (self.pk, self.get_readable_uuid())
+    def __str__(self): return 'Ticket Nº %d - UUID Readable: #%s' % (self.pk, self.get_readable_uuid())
 #
 class RowTicket(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
@@ -47,11 +47,17 @@ class RowTicket(models.Model):
         db_table = 'row_ticket'
     #
     def bet_amount_to_pay(self): return self.bet_amount *self.bet_multiplier
+    #
+    def is_a_winning_row(self): return self.winningticket_set.exists()
+    #
+    def __str__(self): return '%s - %s - %s' % (self.ticket, self.draw, self.icon.name) 
 #
 class WinningTicket(models.Model):
     row_ticket = models.ForeignKey(RowTicket, on_delete=models.CASCADE)
     draw_result = models.ForeignKey(DrawResult, on_delete=models.CASCADE)
-    uuid_ticket = models.CharField('Readable uuid of ticket', max_length=10)
+    uuid_ticket = models.CharField('Readable uuid of ticket', max_length=10, editable=False)
     #
     class Meta:
         db_table = 'winning_ticket'
+    #
+    def __str__(self): return '%s' % (self.row_ticket)

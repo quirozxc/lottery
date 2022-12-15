@@ -36,19 +36,19 @@
                     <th scope="col" class="text-end">Monto</th>
                 </thead>
                 <tbody>
-                    {% for row in ticket.rowticket_set.all %}
+                    {% for row_ticket in ticket.rowticket_set.all %}
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ row.draw.schedule.turn|date:'h:i A' }}</td>
-                            <td>{{ row.icon.name }}</td>
-                            <td class="text-end">{{ request.user.betting_agency.get_currency_display }} {{ row.bet_amount }}</td>
+                            <td>{{ row_ticket.draw.schedule.turn|date:'h:i A' }}</td>
+                            <td>{{ row_ticket.icon.name }}</td>
+                            <td class="text-end">{{ request.user.betting_agency.get_currency_display }} {{ row_ticket.bet_amount }}</td>
                         </tr>
                         {% empty %}
                             <tr><td colspan="4"><span class="fs-5 text-muted">Sin sorteos</span></td></tr>
                     {% endfor %}
                     <tr class="fw-bold fs-5">
                         <td colspan="3" class="text-start">Total de apuesta:</td>
-                        <td class="text-end">{{ request.user.betting_agency.get_currency_display }} {{ ticket.get_total_bet_amount }}</td>
+                        <td class="text-end">{{ ticket.user.betting_agency.get_currency_display }} {{ ticket.get_total_bet_amount }}</td>
                     </tr>
                 </tbody>
             </table>

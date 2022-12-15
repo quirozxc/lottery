@@ -30,3 +30,5 @@ admin.site.register(Icon, IconAdmin)
 class PatternAdmin(admin.ModelAdmin):
     list_display = ('betting_agency', 'lottery', 'icon', 'bet_multiplier', 'minimum_bet',)
 admin.site.register(Pattern, PatternAdmin)
+#
+admin.site.site_header = admin.site.index_title = 'Management - Lottery System'

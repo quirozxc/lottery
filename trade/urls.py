@@ -10,6 +10,6 @@ urlpatterns = [
     path('ticket/<int:ticket>/invalidate/', views.invalidate_ticket, name='invalidate_ticket'),
     path('ticket/<int:ticket>/print/', views.print_ticket, name='print_ticket'),
     path('search/', views.search_ticket, name='search_ticket'),
-    path('ticket/<int:winner_row_ticket>/winner/', views.winning_ticket, name='winning_ticket'),
-    path('ticket/<int:winner_row_ticket>/pay/', views.pay_row_ticket, name='pay_row_ticket'),
+    path('ticket/<int:ticket>/winner/', views.winning_ticket, name='winning_ticket'),
+    path('ticket/<int:winner_ticket>/pay/', views.pay_ticket, name='pay_ticket'),
 ]

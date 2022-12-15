@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.core.exceptions import PermissionDenied
 
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
@@ -15,6 +16,8 @@ from lottery.models import Lottery, Pattern
 from trade.models import Ticket, RowTicket, WinningTicket
 from draw.models import Draw
 
+from decimal import Decimal
+
 # Create your views here.
 @csrf_protect
 @user_active_required
@@ -25,9 +28,7 @@ def sell_ticket(request, lottery):
         return redirect('logout')
     lottery = get_object_or_404(Lottery, pk=lottery)
     # Redirect if the lottery to select it does not belong to the betting_agency of the current user
-    if not lottery in request.user.betting_agency.get_lotteries():
-        messages.warning(request, 'No tiene permisos para realizar esta acción.', extra_tags='alert-warning')
-        return redirect('index')
+    if not lottery in request.user.betting_agency.get_lotteries(): raise PermissionDenied
     _time = datetime.now().time()
     #
     if request.method == 'POST':
@@ -97,6 +98,13 @@ def ticket(request, ticket, post_sale=False):
 @login_required(redirect_field_name=None)
 def invalidate_ticket(request, ticket):
     ticket = get_object_or_404(Ticket, pk=ticket)
+    # Cannot invalidate a ticket that the logged user did not sell.
+    if not ticket.user == request.user: raise PermissionDenied
+    # If exist a draw for any row of the ticket, then it cannot be invalidated
+    for row_ticket in ticket.rowticket_set.all():
+        if row_ticket.draw.drawresult_set.exists():
+            messages.warning(request, 'Imposible invalidar este ticket.', extra_tags='alert-warning')
+            return redirect(reverse('ticket', kwargs= {'ticket': ticket.pk}))
     ticket.is_invalidated = True
     ticket.save()
     messages.warning(request, 'Ticket invalidado.', extra_tags='alert-warning')
@@ -106,6 +114,8 @@ def invalidate_ticket(request, ticket):
 @login_required(redirect_field_name=None)
 def print_ticket(request, ticket):
     ticket = get_object_or_404(Ticket, pk=ticket)
+    # Cannot print out a ticket that the logged user did not sell.
+    if not ticket.user == request.user: raise PermissionDenied
     return render(request, 'to_print.html', context={'ticket': ticket})
 #
 @user_active_required
@@ -121,37 +131,54 @@ def last_ticket(request):
 @login_required(redirect_field_name=None)
 def search_ticket(request):
     raw_ticket = request.GET.get('ticket')
-    winner_row_ticket_found_list = WinningTicket.objects.filter(uuid_ticket__icontains=raw_ticket)
+    # Get the different uuid of winning tickets for the logged user
+    winner_row_ticket_found_list = WinningTicket.objects \
+        .filter(row_ticket__ticket__user=request.user) \
+        .filter(uuid_ticket__icontains=raw_ticket).values('uuid_ticket').distinct()
+    # 
+    winner_ticket_list = list()
+    for winner_ticket in winner_row_ticket_found_list:
+        winner_ticket_list.append(WinningTicket.objects.filter(uuid_ticket=winner_ticket['uuid_ticket']).last())
+    # 
     context = {
         'raw_ticket': raw_ticket,
-        'winner_row_ticket_found_list': winner_row_ticket_found_list,
+        'winner_ticket_list': winner_ticket_list,
     }
     return render(request, 'ticket_list.html', context)
 #
 @user_active_required
 @login_required(redirect_field_name=None)
-def winning_ticket(request, winner_row_ticket):
-    winner_row_ticket = get_object_or_404(RowTicket, pk=winner_row_ticket)
+def winning_ticket(request, ticket):
+    winner_ticket = get_object_or_404(Ticket, pk=ticket)
+    #
+    total_amount_to_pay = Decimal('0.00')
+    for row_ticket in winner_ticket.rowticket_set.all():
+        if row_ticket.is_a_winning_row():
+            total_amount_to_pay += row_ticket.bet_amount_to_pay()
+    #
+    if not total_amount_to_pay:
+        return redirect('index')
+    #
     context = {
-        'winner_row_ticket': winner_row_ticket,
+        'winner_ticket': winner_ticket,
+        'total_amount_to_pay': total_amount_to_pay,
     }
     return render(request, 'winner_ticket.html', context)
 #
 @user_active_required
 @login_required(redirect_field_name=None)
-def pay_row_ticket(request, winner_row_ticket):
-    winner_row_ticket = get_object_or_404(RowTicket, pk=winner_row_ticket)
-    winner_row_ticket.winningticket_set.all().delete()
-    winner_row_ticket.was_rewarded = True
-    winner_row_ticket.save()
-    messages.success(request, 'Un ticket ganador se ha registrado como pagado.', extra_tags='alert-success')
+def pay_ticket(request, winner_ticket):
+    winner_ticket = get_object_or_404(Ticket, pk=winner_ticket)
+    #
+    if not winner_ticket.user == request.user: raise PermissionDenied
+    #
+    for row_ticket in winner_ticket.rowticket_set.all():
+        if row_ticket.is_a_winning_row():
+            row_ticket.winningticket_set.all().delete()
+            row_ticket.was_rewarded = True
+            row_ticket.save()
+    messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
-
-
-
-
-
-
 
 
 # from django.http import HttpResponse

@@ -6,8 +6,7 @@
 
     {% if messages %}
         {% for message in messages %}
-
-            <div id="modal_message" class="modal" tabindex="-1">
+            <div id="modal_message" class="modal my-4" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="alert 
                             {% if message.tags %}
@@ -19,7 +18,6 @@
                     </div>
                 </div>
             </div>
-
         {% endfor %}
     {% endif %}
     

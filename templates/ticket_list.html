@@ -28,8 +28,8 @@
 
 <div class="py-3">
     <div class="list-group mb-3">
-        {% for winner in winner_row_ticket_found_list %}
-            <a href="{% url 'winning_ticket' winner.row_ticket.pk %}" class="list-group-item list-group-item-action">
+        {% for winner in winner_ticket_list %}
+            <a href="{% url 'winning_ticket' winner.row_ticket.ticket.pk %}" class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">Ticket: #{{ winner.row_ticket.ticket.get_readable_uuid }}</h5>
                     <small class="text-end">Fecha de registro: {{ winner.row_ticket.ticket.timestamp|date:'d/m/Y - h:i A' }}</small>

@@ -5,6 +5,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from django.core.exceptions import PermissionDenied
+
 from .forms import LoginForm, SellerCreateForm, SellerChangeForm
 from .decorators import banker_required, user_active_required
 from .models import User
@@ -81,8 +83,8 @@ def create_seller(request):
     }
     return render(request, 'create_seller.html', context)
 #
-@login_required(redirect_field_name=None)
 @banker_required
+@login_required(redirect_field_name=None)
 def list_seller(request):
     seller_list = User.objects.filter(banker__exact=request.user)
     context = {
@@ -119,6 +121,4 @@ def reset_password(request, seller):
         seller.save()
         messages.success(request, 'La contraseña para: "'+seller.username +'", ha sido reseteada.', extra_tags='alert-success')
         return redirect('list_seller')
-    else:
-        messages.warning(request, 'No tiene permisos para realizar esta acción.', extra_tags='alert-warning')
-    return redirect('index')
+    else: raise PermissionDenied

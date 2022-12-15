@@ -85,5 +85,5 @@ def delete_draw(request, draw_result):
     lottery = draw_result.draw.schedule.lottery
     draw_result.delete()
     messages.warning(request, 'Se ha eliminado el resultado.', extra_tags='alert-warning')
-    messages.success(request, 'Puede volver a registrar el resultado correcto.', extra_tags='alert-success')
+    # messages.success(request, 'Puede volver a registrar el resultado correcto.', extra_tags='alert-success')
     return redirect(reverse('draw_register', kwargs={'lottery': lottery.pk}))

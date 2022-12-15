@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ticket, RowTicket
+from .models import Ticket, RowTicket, WinningTicket
 
 # Register your models here.
 class RowTicketInline(admin.TabularInline):
@@ -10,3 +10,4 @@ class TicketAdmin(admin.ModelAdmin):
 admin.site.register(Ticket, TicketAdmin)
 
 admin.site.register(RowTicket)
+admin.site.register(WinningTicket)
