@@ -1,8 +1,11 @@
 from django.db import models
 from lottery.models import Icon
-from draw.models import Draw
+from draw.models import Draw, DrawResult
 from user.models import User
-from draw.models import DrawResult
+from invoice.models import Invoice
+
+from django.conf import settings
+from django.core.validators import MaxValueValidator
 
 from decimal import Decimal
 import uuid
@@ -15,10 +18,22 @@ class Ticket(models.Model):
     was_printed = models.BooleanField('Print control', default=False)
     is_invalidated = models.BooleanField('Invalidation control', default=False)
     #
+    user_commission_percent = models.PositiveSmallIntegerField('Commission percentage', 
+        validators=[MaxValueValidator(settings.MAX_COMMISSION_PERCENT)], default=0)
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
+    #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
         db_table = 'ticket'
+    #
+    def has_pending_draws(self):
+        if self.rowticket_set.exists():
+            for row in self.rowticket_set.all():
+                if not row.draw.drawresult_set.exists():
+                    return True
+        return False
+
     #
     def get_total_bet_amount(self):
         t_amount = Decimal('0.00')
@@ -27,7 +42,23 @@ class Ticket(models.Model):
                 t_amount += row.bet_amount
         return t_amount
     #
-    def get_lottery(self): return self.rowticket_set.first().draw.schedule.lottery
+    def get_total_reward(self):
+        t_reward = Decimal('0.00')
+        if self.rowticket_set.exists():
+            for row in self.rowticket_set.all():
+                if row.is_a_winning_row() or row.was_rewarded:
+                    t_reward += row.bet_amount_to_pay()
+        return t_reward
+    #
+    def get_total_reward_pending_to_pay(self):
+        t_pending_reward = Decimal('0.00')
+        if self.rowticket_set.exists():
+            for row in self.rowticket_set.all():
+                if row.is_a_winning_row():
+                    t_pending_reward += row.bet_amount_to_pay()
+        return t_pending_reward
+    #
+    def get_lottery(self): return self.rowticket_set.last().draw.schedule.lottery
     #
     def get_readable_uuid(self): return str(self.uuid.int)[-10:]
     #
@@ -39,12 +70,13 @@ class RowTicket(models.Model):
     icon = models.ForeignKey(Icon, on_delete=models.CASCADE)
     bet_multiplier = models.PositiveIntegerField('Bet multiplier')
     bet_amount = models.DecimalField('Bet amount', max_digits=6, decimal_places=2)
-    was_rewarded = models.BooleanField('Is winner', default=False)
+    was_rewarded = models.BooleanField('Was rewarded', default=False)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
         db_table = 'row_ticket'
+        verbose_name = 'Row Ticket'
     #
     def bet_amount_to_pay(self): return self.bet_amount *self.bet_multiplier
     #
@@ -59,5 +91,6 @@ class WinningTicket(models.Model):
     #
     class Meta:
         db_table = 'winning_ticket'
+        verbose_name = 'Winning Ticket'
     #
     def __str__(self): return '%s' % (self.row_ticket)

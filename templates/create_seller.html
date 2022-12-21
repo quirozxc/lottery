@@ -44,6 +44,16 @@
                 <input type="password" class="form-control" name="password2" id="id_password2" autocomplete="new-password" maxlength="128" required placeholder="Confimación de Contraseña">
                 <label for="id_password2">Confirmación de Contraseña</label>
             </div>
+            <div class="text-start text-muted mb-2">
+                <span class="helptext">Cada vendedor posee un porcentaje de comisión ajustable, el valor maximo es de {{ MAX_COMMISSION_PERCENT }}.</span>
+            </div>
+            <div class="input-group mb-4">
+                <div class="form-floating">
+                    <input type="number" class="form-control" id="id_percent" name="percent" placeholder="Porcentaje de Comisión" min="0" max="{{ MAX_COMMISSION_PERCENT }}" value="{{ seller.commission_set.last.percent }}" required>
+                    <label for="id_percent">Ingresa el porcentaje de comisión</label>
+                </div>
+                <span class="input-group-text">&nbsp%&nbsp</span>
+            </div>
             <div class="d-grid gap-2 d-flex justify-content-end">
                 <a href="{% url 'list_seller' %}" class="btn btn-lg btn-outline-danger">Cancelar</a>
                 <button class="btn btn-lg btn-outline-primary" type="submit">Registrar Vendedor</button>

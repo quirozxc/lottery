@@ -1,0 +1,3 @@
+ES
+Instalar los fixtures almacenados en /lottery.
+Al crear el usuario con permisos _banker_ se debe añadir el mismo a su user_set.

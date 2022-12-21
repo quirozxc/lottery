@@ -1,8 +1,6 @@
 from django.db import models
 from lottery.models import Schedule, Icon
 
-from datetime import datetime
-
 # Create your models here.
 class Draw(models.Model):
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)

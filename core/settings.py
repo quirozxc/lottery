@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'lottery',
     'draw',
     'trade',
+    'invoice',
 ]
 
 
@@ -79,8 +80,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Tax prefix renderer from settings
+                # Contants renderers from settings
                 'core.utils.get_tax_prefix',
+                'core.utils.get_default_password',
+                'core.utils.get_max_commission_percent',
             ],
         },
     },
@@ -160,7 +163,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+ADMIN_URL = config('ADMIN_URL')
+
 AUTH_USER_MODEL = 'user.User'
+
+DEFAULT_PASSWORD = '12345678'
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'index/'
@@ -173,3 +180,5 @@ CURRENCY = ['Bs.S', 'USD', 'COP']
 TAX_PREFIX = 'RIF'
 
 DRAW_CLOSE_MINUTES = 5
+
+MAX_COMMISSION_PERCENT = 15

@@ -4,12 +4,17 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
+from django.urls import reverse
+
+from django.views.decorators.csrf import csrf_protect
 
 from django.core.exceptions import PermissionDenied
 
 from .forms import LoginForm, SellerCreateForm, SellerChangeForm
 from .decorators import banker_required, user_active_required
 from .models import User
+from invoice.models import Commission, BettingAgencyInvoice
 
 # Create your views here.
 def login(request):
@@ -37,7 +42,7 @@ def login(request):
 #
 @login_required(redirect_field_name=None)
 def index(request):
-    if request.user.is_superuser: return redirect('/admin')
+    if request.user.is_superuser: return redirect('/' +settings.ADMIN_URL)
     return render(request, 'index.html', context={'page_title': 'Sistema de Lotería',})
 #
 @login_required(redirect_field_name=None)
@@ -74,6 +79,8 @@ def create_seller(request):
             seller.betting_agency = request.user.betting_agency
             seller.save()
             #
+            seller.commission_set.create(percent=request.POST.get('percent'))
+            #
             messages.success(request, '¡Nuevo vendedor registrado!', extra_tags='alert-success')
             return redirect('list_seller')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
@@ -83,12 +90,18 @@ def create_seller(request):
     }
     return render(request, 'create_seller.html', context)
 #
+@csrf_protect
 @banker_required
+@user_active_required
 @login_required(redirect_field_name=None)
-def list_seller(request):
+def list_seller(request, post_invoice=False):
+    if request.method == 'POST':
+        return redirect(reverse('export_invoice', kwargs={'betting_agency_invoice': request.POST.get('invoice')}))
     seller_list = User.objects.filter(banker__exact=request.user)
     context = {
-        'seller_list': seller_list
+        'seller_list': seller_list,
+        'post_invoice': post_invoice,
+        'invoice_list': BettingAgencyInvoice.objects.filter(betting_agency=request.user.betting_agency),
     }
     return render(request, 'seller_list.html', context)
 #
@@ -97,10 +110,16 @@ def list_seller(request):
 @login_required(redirect_field_name=None)
 def change_seller(request, seller):
     seller = get_object_or_404(User, pk=seller)
+    #
+    if not seller.banker == request.user: raise PermissionDenied
+    #
     if request.method == 'POST':
         form = SellerChangeForm(request.POST, instance=seller)
         if form.is_valid():
-            form.save()
+            seller = form.save()
+            Commission.objects.filter(pk=seller.commission_set.last().pk) \
+                .update(percent=request.POST.get('percent'))
+            seller.save()
             messages.success(request, '¡El vendedor ha sido actualizado!', extra_tags='alert-success')
             return redirect('list_seller')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
@@ -116,9 +135,10 @@ def change_seller(request, seller):
 @login_required(redirect_field_name=None)
 def reset_password(request, seller):
     seller = get_object_or_404(User, pk=seller)
-    if seller.banker == request.user:
-        seller.set_password('12345678')
-        seller.save()
-        messages.success(request, 'La contraseña para: "'+seller.username +'", ha sido reseteada.', extra_tags='alert-success')
-        return redirect('list_seller')
-    else: raise PermissionDenied
+    #
+    if not seller.banker == request.user: raise PermissionDenied
+    #
+    seller.set_password(settings.DEFAULT_PASSWORD)
+    seller.save()
+    messages.success(request, 'La contraseña para: "'+seller.username +'", ha sido reseteada.', extra_tags='alert-success')
+    return redirect('list_seller')

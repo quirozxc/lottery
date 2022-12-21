@@ -15,7 +15,7 @@
                 <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
             </div>
             <div class="text-start text-muted mb-4">
-                <span>Si el vendedor ha olvidado la contraseña, puede presionar <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>12345678</i></span>
+                <span>Si el vendedor ha olvidado la contraseña, puede presionar <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>{{ DEFAULT_PASSWORD }}</i></span>
             </div>
             <div class="form-floating mt-4 mb-2">
                 <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" required placeholder="Nombre">
@@ -25,6 +25,18 @@
                 <input type="text" class="form-control" name="last_name" value="{{ form.last_name.value }}" id="id_last_name" maxlength="150" required placeholder="Apellido">
                 <label for="id_last_name">Apellido</label>
             </div>
+
+            <div class="text-start text-muted mb-2">
+                <span class="helptext">Cada vendedor posee un porcentaje de comisión ajustable, el valor maximo es de {{ MAX_COMMISSION_PERCENT }}.</span>
+            </div>
+            <div class="input-group mb-4">
+                <div class="form-floating">
+                    <input type="number" class="form-control" id="id_percent" name="percent" placeholder="Porcentaje de Comisión" min="0" max="{{ MAX_COMMISSION_PERCENT }}" value="{{ seller.commission_set.last.percent }}" required>
+                    <label for="id_percent">Ingresa el porcentaje de comisión</label>
+                </div>
+                <span class="input-group-text">&nbsp%&nbsp</span>
+            </div>
+
             <div class="form-check form-switch text-start mb-2">
                 <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %}>
                 <label class="form-check-label" for="id_is_active">Casilla de estado Activo/Suspendido</label>

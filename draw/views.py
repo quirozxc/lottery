@@ -13,8 +13,6 @@ from lottery.models import Lottery, Icon
 from trade.models import RowTicket, WinningTicket
 from draw.models import Draw, DrawResult
 
-
-
 # Create your views here.
 @betting_agency_required
 @user_active_required
@@ -33,8 +31,8 @@ def confirm_draw(request, draw_result):
 def draw_register(request, lottery):
     lottery = get_object_or_404(Lottery, pk=lottery)
     available_draw = Draw.objects \
-        .filter(schedule__lottery__exact=lottery) \
-        .filter(date__exact=datetime.today()) \
+        .filter(schedule__lottery=lottery) \
+        .filter(date=datetime.today()) \
         .filter(drawresult__isnull=True)
     #
     if request.method == 'POST':
@@ -57,7 +55,7 @@ def draw_register(request, lottery):
                 uuid_ticket=winner_ticket_row.ticket.get_readable_uuid()
             ).save()
         #
-        messages.success(request, 'Se ha registrado un resultado.', extra_tags='alert-success')
+        messages.success(request, 'Se ha registrado un resultado (Ganadores: ' +str(winners.count()) +').', extra_tags='alert-success')
         return redirect(reverse('confirm_draw', kwargs={'draw_result': draw_result.pk}))
     # Draw that have been made validating per hour
     _time = datetime.now().time()

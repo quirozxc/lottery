@@ -36,6 +36,8 @@ def sell_ticket(request, lottery):
             user=request.user,
             client=request.POST.get('client') or None)
         #
+        if request.user.commission_set.exists():
+            ticket.user_commission=request.user.commission_set.last().percent
         try:
             # Resolves model validations
             ticket.save()
@@ -68,8 +70,8 @@ def sell_ticket(request, lottery):
             return redirect(reverse('sell_ticket', kwargs={'lottery': lottery.pk}))
     # Current day draws filter
     available_draw = Draw.objects \
-        .filter(schedule__lottery__exact=lottery) \
-        .filter(date__exact=datetime.today())
+        .filter(schedule__lottery=lottery) \
+        .filter(date=datetime.today())
     # Draws available given the current time
     # DRAW_CLOSE_MINUTES for secure bets/draws
     draw_list = list()
@@ -172,12 +174,15 @@ def pay_ticket(request, winner_ticket):
     #
     if not winner_ticket.user == request.user: raise PermissionDenied
     #
+    _check_is_a_winning_row = False
     for row_ticket in winner_ticket.rowticket_set.all():
         if row_ticket.is_a_winning_row():
+            _check_is_a_winning_row = True
             row_ticket.winningticket_set.all().delete()
             row_ticket.was_rewarded = True
             row_ticket.save()
-    messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
+    if _check_is_a_winning_row:
+        messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
 
 
