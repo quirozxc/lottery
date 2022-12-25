@@ -21,7 +21,7 @@ def confirm_draw(request, draw_result):
     if not request.META.get('HTTP_REFERER'): return redirect('index')
     #
     draw_result = get_object_or_404(DrawResult, pk=draw_result)
-    context = {'draw_result': draw_result}
+    context = {'page_title': 'Confirmación de Resultado', 'draw_result': draw_result}
     return render(request, 'confirm_draw.html', context)
 #
 @csrf_protect
@@ -65,7 +65,7 @@ def draw_register(request, lottery):
             draw_to_register_list.append(draw)
     # 
     context = {
-        'page_title': 'Registrar un Resultado de Sorteo',
+        'page_title': 'Registro de Resultado',
         'lottery': lottery,
         'draw_to_register_list': draw_to_register_list,
         # IMPORTANT Pattern_set can be passed because a unique_together exists in the model

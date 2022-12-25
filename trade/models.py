@@ -2,7 +2,7 @@ from django.db import models
 from lottery.models import Icon
 from draw.models import Draw, DrawResult
 from user.models import User
-from invoice.models import Invoice
+from invoice.models import RowInvoice
 
 from django.conf import settings
 from django.core.validators import MaxValueValidator
@@ -20,7 +20,7 @@ class Ticket(models.Model):
     #
     user_commission_percent = models.PositiveSmallIntegerField('Commission percentage', 
         validators=[MaxValueValidator(settings.MAX_COMMISSION_PERCENT)], default=0)
-    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
+    row_invoice = models.ForeignKey(RowInvoice, on_delete=models.SET_NULL, null=True, blank=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
@@ -61,6 +61,8 @@ class Ticket(models.Model):
     def get_lottery(self): return self.rowticket_set.last().draw.schedule.lottery
     #
     def get_readable_uuid(self): return str(self.uuid.int)[-10:]
+    #
+    def get_client_or_notapply(self): return self.client if self.client else settings.NOT_APPLY_LABEL
     #
     def __str__(self): return 'Ticket Nº %d - UUID Readable: #%s' % (self.pk, self.get_readable_uuid())
 #

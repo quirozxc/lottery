@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from .forms import LoginForm, SellerCreateForm, SellerChangeForm
 from .decorators import banker_required, user_active_required
 from .models import User
-from invoice.models import Commission, BettingAgencyInvoice
+from invoice.models import Commission, Invoice
 
 # Create your views here.
 def login(request):
@@ -96,12 +96,15 @@ def create_seller(request):
 @login_required(redirect_field_name=None)
 def list_seller(request, post_invoice=False):
     if request.method == 'POST':
-        return redirect(reverse('export_invoice', kwargs={'betting_agency_invoice': request.POST.get('invoice')}))
+        if request.POST.get('matrix'):
+            return redirect(reverse('export_matrix', kwargs={'invoice': request.POST.get('invoice')}))
+        return redirect(reverse('export_invoice', kwargs={'invoice': request.POST.get('invoice')}))
     seller_list = User.objects.filter(banker__exact=request.user)
     context = {
+        'page_title': 'Lista de Vendedores',
         'seller_list': seller_list,
         'post_invoice': post_invoice,
-        'invoice_list': BettingAgencyInvoice.objects.filter(betting_agency=request.user.betting_agency),
+        'invoice_list': Invoice.objects.filter(betting_agency=request.user.betting_agency),
     }
     return render(request, 'seller_list.html', context)
 #
@@ -117,6 +120,9 @@ def change_seller(request, seller):
         form = SellerChangeForm(request.POST, instance=seller)
         if form.is_valid():
             seller = form.save()
+            #
+            if not seller.commission_set.exists(): seller.commission_set.create(percent=0)
+            #
             Commission.objects.filter(pk=seller.commission_set.last().pk) \
                 .update(percent=request.POST.get('percent'))
             seller.save()

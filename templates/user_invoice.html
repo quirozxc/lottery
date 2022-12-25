@@ -1,0 +1,45 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <h1 class="h2 mb-3 fw-normal">Lista de Facturas</h1>
+        <div style="overflow-y: scroll;max-height: 448px;">
+            <div class="table-responsive mb-2">
+                <table class="table table-hover align-middle">
+                    <caption>Cada fila es un resumen de factura, estan ordenadas en forma descendente.</caption>
+                    <thead>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Total Ventas</th>
+                        <th scope="col">Total Ganadores</th>
+                        <th scope="col">Pendiente Por Pagar</th>
+                        <th scope="col">Total Comisión</th>
+                        <th scope="col">Total A Entregar</th>
+                    </thead>
+                    <tbody class="text-nowrap">
+                        {% with currency=request.user.betting_agency.get_currency_display %}
+                            {% for invoice, total_collecting in invoice_list %}
+                                <tr>
+                                    <th scope="row">{{ invoice.timestamp|date:'d/m/Y' }}</th>
+                                    <td>{{ currency }} {{ invoice.total_sales }}</td>
+                                    <td>{{ currency }} {{ invoice.total_rewards }}</td>
+                                    <td>{{ currency }} {{ invoice.total_rewards_to_pay }}</td>
+                                    <td>{{ currency }} {{ invoice.total_commission }}</td>
+                                    <td>{{ currency }} {{ total_collecting }}</td>
+                                </tr>
+                                {% empty %}
+                                    <tr><td colspan="6"><span class="fs-5 text-muted">No tienes facturas generadas aún.</span></td></tr>
+                            {% endfor %}
+                        {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'index' %}" type="button" class="btn btn-lg btn-outline-primary">Regresar</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

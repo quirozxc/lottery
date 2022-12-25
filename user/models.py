@@ -10,6 +10,8 @@ class User(AbstractUser):
     is_banker = models.BooleanField('Can create sellers', default=False)
     is_betting_agency_staff = models.BooleanField('Can register a lottery result', default=False)
     #
+    is_system_manager = models.BooleanField('Lottery System Administrator', default=False)
+    #
     class Meta:
         db_table = 'user'
     #

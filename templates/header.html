@@ -21,7 +21,7 @@
                     {{ request.user.get_full_name }}
                 </a>
                 <ul class="dropdown-menu text-end">
-                    <li><a class="dropdown-item" href="#">Facturación</a></li>
+                    <li><a class="dropdown-item" href="{% url 'user_invoice_list' %}">Facturación</a></li>
                     <li><hr class="dropdown-divider mx-2"></li>
                     <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambiar contraseña</a></li>
                     <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>

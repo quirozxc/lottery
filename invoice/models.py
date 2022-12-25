@@ -24,15 +24,14 @@ class Commission(models.Model):
     def __str__(self): return '%s - Commission: %s%%' % (self.user.get_full_name(), self.percent)
     #
 #
-class BettingAgencyInvoice(models.Model):
+class Invoice(models.Model):
     betting_agency = models.ForeignKey(BettingAgency, on_delete=models.CASCADE)
     was_paid = models.BooleanField('Was paid', default=False)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
-        db_table = 'betting_agency_invoice'
-        verbose_name = 'Betting Agency - Invoice'
+        db_table = 'invoice'
     #
     def __str__(self):
         return '%s - Fecha: %s' % (
@@ -40,8 +39,8 @@ class BettingAgencyInvoice(models.Model):
             self.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y - %I:%M %p')
         )
 #
-class Invoice(models.Model):
-    betting_agency = models.ForeignKey(BettingAgencyInvoice, on_delete=models.CASCADE)
+class RowInvoice(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     #
     total_sales = models.DecimalField('Total sales', max_digits=6, decimal_places=2, default=0)
     total_rewards = models.DecimalField('Total sales', max_digits=6, decimal_places=2, default=0)
@@ -51,7 +50,8 @@ class Invoice(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
-        db_table = 'invoice'
+        db_table = 'row_invoice'
+        verbose_name = 'Row Invoice'
     #
     def get_ticket_user_fullname(self): return self.ticket_set.last().user.get_full_name()
 #

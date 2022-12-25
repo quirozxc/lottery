@@ -94,7 +94,7 @@ def sell_ticket(request, lottery):
 @login_required(redirect_field_name=None)
 def ticket(request, ticket, post_sale=False):
     ticket = get_object_or_404(Ticket, pk=ticket)
-    return render(request, 'ticket_details.html', {'ticket': ticket, 'post_sale': post_sale})
+    return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'post_sale': post_sale})
 #
 @user_active_required
 @login_required(redirect_field_name=None)
@@ -124,7 +124,7 @@ def print_ticket(request, ticket):
 @login_required(redirect_field_name=None)
 def last_ticket(request):
     try:
-        return render(request, 'ticket_details.html', {'ticket': request.user.ticket_set.last()})
+        return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': request.user.ticket_set.last()})
     except:
         messages.warning(request, 'No ha vendido tickets aún.', extra_tags='alert-warning')
     return redirect('index')
@@ -143,6 +143,7 @@ def search_ticket(request):
         winner_ticket_list.append(WinningTicket.objects.filter(uuid_ticket=winner_ticket['uuid_ticket']).last())
     # 
     context = {
+        'page_title': 'Resultado de Búsqueda',
         'raw_ticket': raw_ticket,
         'winner_ticket_list': winner_ticket_list,
     }
@@ -162,6 +163,7 @@ def winning_ticket(request, ticket):
         return redirect('index')
     #
     context = {
+        'page_title': 'Detalles de Ticket Ganador',
         'winner_ticket': winner_ticket,
         'total_amount_to_pay': total_amount_to_pay,
     }
@@ -184,28 +186,4 @@ def pay_ticket(request, winner_ticket):
     if _check_is_a_winning_row:
         messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
-
-
-# from django.http import HttpResponse
-# from xhtml2pdf import pisa
-# from django.template.loader import get_template
-# from io import BytesIO
-
-# @login_required(redirect_field_name=None)
-# def print_ticket_copia(request, ticket):
-#     ticket = get_object_or_404(Ticket, pk=ticket)
-#     buffer = BytesIO()
-#     template = get_template('to_print.html')
-#     context = {
-#         'ticket': ticket
-#     }
-#     html = template.render(context)
-#     pisa_status = pisa.CreatePDF(html, dest=buffer)
-#     if pisa_status.err:
-#         messages.error(request, 'Error inesperado, el ticket no fue enviado a impresión', extra_tags='alert-danger')
-#         return redirect(reverse('ticket', kwargs= {'ticket': ticket.pk}))
-#     response = HttpResponse(buffer.getvalue(), headers={
-#         'Content-Type': 'application/pdf',
-#         # 'Content-Disposition': 'attachment; filename="ticket.pdf"',
-#     })
-#     return response
+#
