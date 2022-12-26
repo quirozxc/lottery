@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import User
+from user.models import User
 
 class LoginForm(forms.Form):
     username = forms.CharField(label='Usuario', max_length=150)
@@ -11,7 +11,7 @@ class SellerCreateForm(UserCreationForm):
         model = User
         fields = ('username', 'password1', 'password2', 'first_name', 'last_name',)
 
-class SellerChangeForm(UserChangeForm):
+class SellerEditForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'is_active',)

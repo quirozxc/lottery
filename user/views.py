@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from django.core.exceptions import PermissionDenied
 
-from .forms import LoginForm, SellerCreateForm, SellerChangeForm
+from .forms import LoginForm, SellerCreateForm, SellerEditForm
 from .decorators import banker_required, user_active_required
 from .models import User
 from invoice.models import Commission, Invoice
@@ -43,6 +43,7 @@ def login(request):
 @login_required(redirect_field_name=None)
 def index(request):
     if request.user.is_superuser: return redirect('/' +settings.ADMIN_URL)
+    if request.user.is_system_manager: return redirect('management')
     return render(request, 'index.html', context={'page_title': 'Sistema de Lotería',})
 #
 @login_required(redirect_field_name=None)
@@ -111,13 +112,13 @@ def list_seller(request, post_invoice=False):
 @banker_required
 @user_active_required
 @login_required(redirect_field_name=None)
-def change_seller(request, seller):
+def edit_seller(request, seller):
     seller = get_object_or_404(User, pk=seller)
     #
     if not seller.banker == request.user: raise PermissionDenied
     #
     if request.method == 'POST':
-        form = SellerChangeForm(request.POST, instance=seller)
+        form = SellerEditForm(request.POST, instance=seller)
         if form.is_valid():
             seller = form.save()
             #
@@ -131,10 +132,10 @@ def change_seller(request, seller):
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
         'page_title': 'Actualizar Vendedor',
-        'form': SellerChangeForm(instance=seller),
+        'form': SellerEditForm(instance=seller),
         'seller': seller,
     }
-    return render(request, 'change_seller.html', context)
+    return render(request, 'edit_seller.html', context)
 #
 @banker_required
 @user_active_required

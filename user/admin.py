@@ -24,7 +24,7 @@ class UserAdmin(_UserAdmin):
             'fields': ('betting_agency', 'is_banker', 'is_betting_agency_staff',)
         }),
         ('Other', {
-            'fields': ('is_active', 'banker')
+            'fields': ('is_active', 'banker', 'is_system_manager')
         }),
     )
     inlines = (CommissionInline,)

@@ -26,10 +26,14 @@
                                     <td>{{ currency }} {{ invoice.total_rewards }}</td>
                                     <td>{{ currency }} {{ invoice.total_rewards_to_pay }}</td>
                                     <td>{{ currency }} {{ invoice.total_commission }}</td>
-                                    <td>{{ currency }} {{ total_collecting }}</td>
+                                    {% if total_collecting < 0 %}
+                                        <td class="text-danger">{{ currency }} {{ total_collecting }}</td>
+                                    {% else %}
+                                        <td>{{ currency }} {{ total_collecting }}</td>
+                                    {% endif %}
                                 </tr>
                                 {% empty %}
-                                    <tr><td colspan="6"><span class="fs-5 text-muted">No tienes facturas generadas aún.</span></td></tr>
+                                    <tr><td colspan="6"><span class="fs-5 text-muted">No tiene facturas generadas aún.</span></td></tr>
                             {% endfor %}
                         {% endwith %}
                     </tbody>

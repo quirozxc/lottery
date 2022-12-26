@@ -7,6 +7,8 @@ from lottery.models import BettingAgency
 from datetime import datetime
 import pytz
 
+from decimal import Decimal
+
 # Create your models here.
 class Commission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -26,12 +28,29 @@ class Commission(models.Model):
 #
 class Invoice(models.Model):
     betting_agency = models.ForeignKey(BettingAgency, on_delete=models.CASCADE)
+    system_commission = models.PositiveSmallIntegerField('System Commission Percentage', default=0)
     was_paid = models.BooleanField('Was paid', default=False)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
         db_table = 'invoice'
+    #
+    def get_total_sales(self):
+        total_sales = Decimal('0.00')
+        for row in self.rowinvoice_set.all():
+            total_sales += row.total_sales
+        return total_sales
+    #
+    def get_total_earnings(self):
+        total_earning = Decimal('0.00')
+        for row in self.rowinvoice_set.all():
+            total_earning += row.total_sales - row.total_rewards - row.total_commission
+        return total_earning
+    #
+    def get_total_to_pay_to_manager(self):
+        _total = self.get_total_earnings() * Decimal(self.system_commission / 100)
+        return _total if _total > Decimal('0.00') else Decimal('0.00')
     #
     def __str__(self):
         return '%s - Fecha: %s' % (

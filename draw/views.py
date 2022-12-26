@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from user.decorators import user_active_required, betting_agency_required
+from lottery.decorators import bet_active_required
 
 from datetime import datetime
 
@@ -15,6 +16,7 @@ from draw.models import Draw, DrawResult
 
 # Create your views here.
 @betting_agency_required
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def confirm_draw(request, draw_result):
@@ -26,6 +28,7 @@ def confirm_draw(request, draw_result):
 #
 @csrf_protect
 @betting_agency_required
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def draw_register(request, lottery):

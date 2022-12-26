@@ -12,7 +12,11 @@
         </a>
 
         <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto text-center">
-            <a class="ms-3 py-2 text-dark text-decoration-none my-auto" href="{% url 'last_ticket' %}">Último Ticket</a>
+            {% if not request.user.is_system_manager %}
+                <a class="ms-3 py-2 text-dark text-decoration-none my-auto" href="{% url 'last_ticket' %}">Último Ticket</a>
+            {% else %}
+                <a class="ms-3 py-2 text-dark text-decoration-none my-auto" href="{% url 'betting_agency_list' %}">Agencias de Lotería</a>
+            {% endif %}
             {% if request.user.is_banker %}
                 <a class="ms-3 py-2 text-dark text-decoration-none my-auto" href="{% url 'list_seller' %}">Vendedores</a>
             {% endif %}
@@ -21,8 +25,10 @@
                     {{ request.user.get_full_name }}
                 </a>
                 <ul class="dropdown-menu text-end">
-                    <li><a class="dropdown-item" href="{% url 'user_invoice_list' %}">Facturación</a></li>
-                    <li><hr class="dropdown-divider mx-2"></li>
+                    {% if not request.user.is_system_manager %}
+                        <li><a class="dropdown-item" href="{% url 'user_invoice_list' %}">Facturación</a></li>
+                        <li><hr class="dropdown-divider mx-2"></li>
+                    {% endif %}
                     <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambiar contraseña</a></li>
                     <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
                 </ul>

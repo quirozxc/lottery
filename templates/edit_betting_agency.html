@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <form action="" method="post">
+            {% csrf_token %}
+            <h1 class="h2 mb-3 fw-normal">Actualizar Agencia</h1>
+            <div class="form-floating mb-2">
+                <input type="text" class="form-control" name="name" value="{{ form.name.value }}" id="id_bet_name" maxlength="150" required readonly placeholder="Nombre de la Agencia de Lotería">
+                <label for="id_bet_name">Nombre de la Agencia de Lotería</label>
+            </div>
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
+            </div>
+            <div class="input-group mb-4">
+                <div class="form-floating">
+                    <input type="number" class="form-control" id="id_percent" name="system_commission" placeholder="Porcentaje de Comisión" min="0" max="100" value="{{ form.system_commission.value }}" required>
+                    <label for="id_percent">Ingresa el porcentaje de comisión</label>
+                </div>
+                <span class="input-group-text">&nbsp%&nbsp</span>
+            </div>
+
+            <div class="form-check form-switch text-start mb-2">
+                <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %}>
+                <label class="form-check-label" for="id_is_active">Casilla de estado Activo/Suspendido</label>
+            </div>
+            <div class="text-start text-muted mb-4">
+                <span class="helptext">Designa si la agencia de lotería puede operar con normalidad.</span>
+            </div>
+            <div class="d-grid gap-2 d-flex justify-content-end">
+                <a href="{% url 'betting_agency_list' %}" class="btn btn-lg btn-outline-danger">Cancelar</a>
+                <button class="btn btn-lg btn-outline-primary" type="submit">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -23,6 +23,7 @@ urlpatterns = [
     path('trade/', include('trade.urls')),
     path('draw/', include('draw.urls')),
     path('invoice/', include('invoice.urls')),
+    path('lottery/', include('lottery.urls')),
     path(settings.ADMIN_URL +'/', admin.site.urls),
 ]
 

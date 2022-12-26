@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from user.decorators import user_active_required
+from lottery.decorators import bet_active_required
 
 from datetime import datetime, timedelta as td
 
@@ -20,6 +21,7 @@ from decimal import Decimal
 
 # Create your views here.
 @csrf_protect
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def sell_ticket(request, lottery):
@@ -129,14 +131,19 @@ def last_ticket(request):
         messages.warning(request, 'No ha vendido tickets aún.', extra_tags='alert-warning')
     return redirect('index')
 #
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def search_ticket(request):
     raw_ticket = request.GET.get('ticket')
     # Get the different uuid of winning tickets for the logged user
-    winner_row_ticket_found_list = WinningTicket.objects \
-        .filter(row_ticket__ticket__user=request.user) \
-        .filter(uuid_ticket__icontains=raw_ticket).values('uuid_ticket').distinct()
+    if int(raw_ticket) == 0: # Easter egg: with zero as parameter return all tickets...
+        winner_row_ticket_found_list = WinningTicket.objects \
+            .filter(row_ticket__ticket__user=request.user).values('uuid_ticket').distinct()
+    else:
+        winner_row_ticket_found_list = WinningTicket.objects \
+            .filter(row_ticket__ticket__user=request.user) \
+            .filter(uuid_ticket__icontains=raw_ticket).values('uuid_ticket').distinct()
     # 
     winner_ticket_list = list()
     for winner_ticket in winner_row_ticket_found_list:
@@ -149,6 +156,7 @@ def search_ticket(request):
     }
     return render(request, 'ticket_list.html', context)
 #
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def winning_ticket(request, ticket):
@@ -169,6 +177,7 @@ def winning_ticket(request, ticket):
     }
     return render(request, 'winner_ticket.html', context)
 #
+@bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def pay_ticket(request, winner_ticket):

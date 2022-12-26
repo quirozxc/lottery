@@ -1,0 +1,86 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="justify-content-center py-3">
+    <div class="text-center">
+        <form class="mb-3" action="" method="post">
+            {% csrf_token %}
+            <h1 class="h2 mb-3 fw-normal">Administración</h1>
+            <div class="row g-2 mb-2">
+                <div class="col-10">
+                    <div class="form-floating">
+                        <select class="form-select" name="betting_agency" required id="id_betting_agency">
+                            <option  value="" selected="selected">Seleccione...</option>
+                            {% for bet_agency in betting_agency_list %}
+                                {% if betting_agency %}
+                                    <option value="{{ bet_agency.pk }}" {% if bet_agency.pk is betting_agency.pk %}selected="selected"{% endif %}>{{ bet_agency }}</option>
+                                {% else %}
+                                    <option value="{{ bet_agency.pk }}">{{ bet_agency }}</option>
+                                {% endif %}
+                                {% empty %}
+                                    <option>No existen agencias de lotería registradas aún.</option>
+                            {% endfor %}
+                        </select>
+                        <label class="" for="id_betting_agency">Agencia de Lotería</label>
+                    </div>
+                </div>
+                <div class="col-2 mt-3">
+                    <button type="submit" class="btn btn-outline-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-receipt" viewBox="0 0 16 16">
+                            <path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27zm.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0l-.509-.51z"/>
+                            <path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zm8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% if betting_agency %}
+        <form class="mb-3" action="{% url 'pay_to_manager' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="betting_agency" value="{{ betting_agency.pk }}">
+            <div style="overflow-y: scroll;max-height: 448px;">
+                <div class="table-responsive mb-2">
+                    <table class="table table-hover align-middle">
+                        <caption>Cada fila es un resumen de factura, estan ordenadas en forma descendente.</caption>
+                        <thead>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Total Ventas</th>
+                            <th scope="col">Total Ganancias</th>
+                            <th scope="col">Porcentaje Comisión</th>
+                            <th scope="col" colspan="2">Total A Pagar</th>
+                        </thead>
+                        <tbody class="text-nowrap">
+                            {% with currency=betting_agency.get_currency_display %}
+                                {% for invoice in invoice_list %}
+                                    <tr>
+                                        <th scope="row">{{ invoice.timestamp|date:'d/m/Y' }}</th>
+                                        <td>{{ currency }} {{ invoice.get_total_sales }}</td>
+                                        <td>{{ currency }} {{ invoice.get_total_earnings }}</td>
+                                        <td>{{ invoice.system_commission }}%</td>
+                                        <td class="fw-bold">{{ currency }} {{ invoice.get_total_to_pay_to_manager|floatformat:2 }}</td>
+                                        <td>
+                                            <div class="form-check form-check-reverse">
+                                                <input class="form-check-input" type="checkbox" name="invoice" value="{{ invoice.pk }}" id="id_paid" {% if invoice.was_paid %}checked{% endif %}>
+                                                <label class="form-check-label" for="id_paid">Pagado</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                        <tr><td colspan="6"><span class="fs-5 text-muted">No tiene facturas generadas aún.</span></td></tr>
+                                {% endfor %}
+                            {% endwith %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-flex justify-content-end">
+                <a href="{% url 'index' %}" class="btn btn-lg btn-outline-danger">Limpiar</a>
+                <button class="btn btn-lg btn-outline-success" type="submit">Pagado</button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

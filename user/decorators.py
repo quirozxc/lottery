@@ -21,3 +21,9 @@ def betting_agency_required(function):
         if not request.user.is_betting_agency_staff: raise PermissionDenied
         return function(request, *args, **kwargs)
     return wrap
+#
+def system_manager_required(function):
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_system_manager: raise PermissionDenied
+        return function(request, *args, **kwargs)
+    return wrap

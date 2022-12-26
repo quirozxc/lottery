@@ -44,6 +44,7 @@ class BettingAgency(models.Model):
     currency = models.CharField('Currency', max_length=2, choices=[(str(i), settings.CURRENCY[i]) for i in range(0, len(settings.CURRENCY))])
     minimum_bet = models.PositiveIntegerField('Minimum bet')
     system_commission = models.PositiveSmallIntegerField('System Commission Percentage', default=0)
+    is_active = models.BooleanField('Can be operated', default=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #

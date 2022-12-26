@@ -8,6 +8,7 @@
             "description": "Somos tu casa de apuestas confiable, nuestra transparencia y confianza nos caracterizan. Ubícanos en cualquier esquina de Maracaibo",
             "currency": "0",
             "minimum_bet": 1,
+            "system_commission": 22,
             "timestamp": "2022-12-13T20:34:27.923Z"
         }
     }
