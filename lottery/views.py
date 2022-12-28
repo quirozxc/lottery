@@ -28,7 +28,7 @@ def edit_betting_agency(request, betting_agency):
         form = BettingAgencyEditForm(request.POST, instance=betting_agency)
         if form.is_valid():
             form.save()
-            messages.success(request, 'La Agencia de Lotería ha sido actualizada.', extra_tags='alert-success')
+            messages.success(request, 'La agencia de lotería ha sido actualizada.', extra_tags='alert-success')
             return redirect('betting_agency_list')
         else: print(form.errors)
     context = {

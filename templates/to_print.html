@@ -9,10 +9,10 @@
     <p>Vendedor: {{ ticket.user.get_full_name }}</p>
     <p>--------------------------------</p>
     {% for row in ticket.rowticket_set.all %}
-    <p>{{ row.draw.schedule.turn|date:'h:i A' }} - {{ row.icon.name }} - {{ request.user.betting_agency.get_currency_display }} {{ row.bet_amount }}</p>
+    <p>{{ row.draw.schedule.turn|date:'h:i A' }} - {{ row.icon.name }} - {{ ticket.user.betting_agency.get_currency_display }} {{ row.bet_amount }}</p>
         {% empty %}
             <h4>Sin sorteos</h4>
     {% endfor %}
     <p>--------------------------------</p>
-    <h4>Total de apuesta: {{ request.user.betting_agency.get_currency_display }} {{ ticket.get_total_bet_amount }}</h4>
+    <h4>Total de apuesta: {{ ticket.user.betting_agency.get_currency_display }} {{ ticket.get_total_bet_amount }}</h4>
 </div>

@@ -18,7 +18,49 @@ from trade.models import Ticket, RowTicket, WinningTicket
 from draw.models import Draw
 
 from decimal import Decimal
+#
+from PIL import Image, ImageDraw, ImageFont
 
+from io import BytesIO
+import base64
+
+import pytz
+#
+def t_imagen(ticket):
+    size_h = 250
+    #
+    ticket_str = str()
+    ticket_str += str(ticket.user.betting_agency) +'\n'
+    ticket_str += settings.TAX_PREFIX +' ' +ticket.user.betting_agency.tax_id +'\n'
+    ticket_str += 'Ticket #' +ticket.get_readable_uuid() +'\n'
+    ticket_str += ticket.get_lottery().name +'\n'
+    ticket_str += 'Cliente: ' +(ticket.client or settings.NOT_APPLY_LABEL) +'\n'
+    ticket_str += 'Fecha: ' +ticket.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y - %I:%M %p') +'\n'
+    ticket_str += 'Vendedor: ' +ticket.user.get_full_name() +'\n'
+    ticket_str += '--------------------------------' +'\n'
+    #
+    for row in ticket.rowticket_set.all():
+        ticket_str += row.draw.schedule.turn.strftime('%I:%M %p') +' - ' +row.icon.name +' - ' +ticket.user.betting_agency.get_currency_display() +' ' +str(row.bet_amount) +'\n'
+        size_h += 30
+    #
+    ticket_str += '--------------------------------' +'\n'
+    ticket_str += 'Total de apuesta: ' +ticket.user.betting_agency.get_currency_display() +' ' +str(ticket.get_total_bet_amount())
+    size_h += 30
+    #
+    img = Image.new('L', (384, size_h), color=(255))
+    path = settings.STATIC_ROOT / 'Roboto-Regular.ttf'
+    fnt = ImageFont.truetype(str(path), 24)
+    draw = ImageDraw.Draw(img)
+    draw.multiline_text((10, 10), ticket_str, font=fnt, fill=(0))
+    #
+    # img.save('test.png')
+    #
+    with BytesIO() as buffered:
+        img.save(buffered, format='PNG')
+        img_str = base64.b64encode(buffered.getvalue())
+        return img_str
+    #
+#
 # Create your views here.
 @csrf_protect
 @bet_active_required
@@ -96,7 +138,12 @@ def sell_ticket(request, lottery):
 @login_required(redirect_field_name=None)
 def ticket(request, ticket, post_sale=False):
     ticket = get_object_or_404(Ticket, pk=ticket)
-    return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'post_sale': post_sale})
+    if not ticket.user == request.user: raise PermissionDenied
+    #
+    ticket_imagen = t_imagen(ticket)
+    ticket_imagen = ticket_imagen.decode('utf-8')
+    #
+    return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'post_sale': post_sale, 'ticket_imagen': ticket_imagen})
 #
 @user_active_required
 @login_required(redirect_field_name=None)
@@ -126,7 +173,12 @@ def print_ticket(request, ticket):
 @login_required(redirect_field_name=None)
 def last_ticket(request):
     try:
-        return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': request.user.ticket_set.last()})
+        ticket = request.user.ticket_set.last()
+        #
+        ticket_imagen = t_imagen(ticket)
+        ticket_imagen = ticket_imagen.decode('utf-8')
+        #
+        return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'ticket_imagen': ticket_imagen})
     except:
         messages.warning(request, 'No ha vendido tickets aún.', extra_tags='alert-warning')
     return redirect('index')
