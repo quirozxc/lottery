@@ -4,7 +4,7 @@
 
 <div class="text-center">
     <h1 class="display-4 fw-normal">{{ request.user.betting_agency }}</h1>
-    <p class="fs-5 text-muted mb-4">{{ request.user.betting_agency.description }}</p>
+    <p class="fs-5 text-muted mb-4">{{ request.user.betting_agency.description|default:'' }}</p>
 </div>
 
 <form class="row g-0 mb-2" action="{% url 'search_ticket' %}">
@@ -28,25 +28,30 @@
 
 <div class="row row-cols-1 row-cols-sm-2 mb-3 text-center">
     {% for lottery in request.user.betting_agency.get_lotteries %}
-    <div class="col">
-        <div class="card my-3 shadow-sm">
-            <div class="card-img-top">
-                <a href="{% url 'sell_ticket' lottery.pk %}"><img src="{{ lottery.picture.url }}" class="mt-3"
-                    width="235" height="235" alt="Imagen representativa de {{ lottery }}">
-                </a>
-            </div>
-            <div class="card-body">
-                <span class="fs-5 card-title text-center">{{ lottery }}</span>
-                <p class="card-text text-muted mt-2">Para vender un ticket de esta lotería presiona la imagen correspondiente o el botón debajo de este texto de ayuda.</p>
-                <div class="d-grid gap-2 d-block">
-                    <a href="{% url 'sell_ticket' lottery.pk %}" type="button" class="p-3 btn btn-outline-primary m-1">Vender Ticket</a>
-                    {% if request.user.is_betting_agency_staff %}
-                        <a href="{% url 'draw_register' lottery.pk %}" type="button" class="p-3 btn btn-outline-dark m-1">Registrar Sorteo</a>
-                    {% endif %}
+        <div class="col">
+            <div class="card my-3 shadow-sm">
+                <div class="card-img-top">
+                    <a href="{% url 'sell_ticket' lottery.pk %}"><img src="{{ lottery.picture.url }}" class="mt-3"
+                        width="235" height="235" alt="Imagen representativa de {{ lottery }}">
+                    </a>
+                </div>
+                <div class="card-body">
+                    <span class="fs-5 card-title text-center">{{ lottery }}</span>
+                    <p class="card-text text-end mt-2 me-2">Ir a la configuración <a href="{% url 'edit_pattern' lottery.pk request.user.betting_agency.pk %}" class="text-decoration-none">aquí</a>...</p>
+                    <p class="card-text text-muted mt-2">Para vender un ticket de esta lotería presiona la imagen correspondiente o el botón debajo de este texto de ayuda.</p>
+                    <div class="d-grid gap-2 d-block">
+                        <a href="{% url 'sell_ticket' lottery.pk %}" type="button" class="p-3 btn btn-outline-primary m-1">Vender Ticket</a>
+                        {% if request.user.is_betting_agency_staff %}
+                            <a href="{% url 'draw_register' lottery.pk %}" type="button" class="p-3 btn btn-outline-dark m-1">Registrar Sorteo</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+        {% empty %}
+            <div class="w-100">
+                <span class="fs-5 text-muted text-center">Aún no hay loterías configuradas para esta agencia.</span>
+            </div>
     {% endfor %}
 </div>
 

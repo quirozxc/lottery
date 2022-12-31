@@ -35,7 +35,7 @@ def login(request):
             else: messages.warning(request, '¡Usuario y contraseña no coinciden!', extra_tags='alert-warning')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
-        'page_title': 'Iniciar Sesión',
+        'page_title': 'Iniciar Sesión - ',
         'form': LoginForm()
     }
     return render(request, 'login.html', context)
@@ -44,7 +44,7 @@ def login(request):
 def index(request):
     if request.user.is_superuser: return redirect('/' +settings.ADMIN_URL)
     if request.user.is_system_manager: return redirect('management')
-    return render(request, 'index.html', context={'page_title': 'Sistema de Lotería',})
+    return render(request, 'index.html', context={'page_title': '',})
 #
 @login_required(redirect_field_name=None)
 def logout(request):
@@ -62,7 +62,7 @@ def password_change(request):
             return redirect('index')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
-        'page_title': 'Cambio de Contraseña',
+        'page_title': 'Cambio de Contraseña - ',
         'form': PasswordChangeForm(user=request.user)
     }
     return render(request, 'password_change.html', context)
@@ -86,7 +86,7 @@ def create_seller(request):
             return redirect('list_seller')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
-        'page_title': 'Registrar Vendedor',
+        'page_title': 'Registrar Vendedor - ',
         'form': SellerCreateForm(),
     }
     return render(request, 'create_seller.html', context)
@@ -96,13 +96,13 @@ def create_seller(request):
 @user_active_required
 @login_required(redirect_field_name=None)
 def list_seller(request, post_invoice=False):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST.get('invoice').isdigit():
         if request.POST.get('matrix'):
             return redirect(reverse('export_matrix', kwargs={'invoice': request.POST.get('invoice')}))
         return redirect(reverse('export_invoice', kwargs={'invoice': request.POST.get('invoice')}))
     seller_list = User.objects.filter(banker__exact=request.user)
     context = {
-        'page_title': 'Lista de Vendedores',
+        'page_title': 'Lista de Vendedores - ',
         'seller_list': seller_list,
         'post_invoice': post_invoice,
         'invoice_list': Invoice.objects.filter(betting_agency=request.user.betting_agency),
@@ -131,7 +131,7 @@ def edit_seller(request, seller):
             return redirect('list_seller')
         else: messages.error(request, form.errors.as_text(), extra_tags='alert-danger')
     context = {
-        'page_title': 'Actualizar Vendedor',
+        'page_title': 'Actualizar Vendedor - ',
         'form': SellerEditForm(instance=seller),
         'seller': seller,
     }

@@ -34,7 +34,7 @@ def t_imagen(ticket):
     ticket_str += settings.TAX_PREFIX +' ' +ticket.user.betting_agency.tax_id +'\n'
     ticket_str += 'Ticket #' +ticket.get_readable_uuid() +'\n'
     ticket_str += ticket.get_lottery().name +'\n'
-    ticket_str += 'Cliente: ' +(ticket.client or settings.NOT_APPLY_LABEL) +'\n'
+    ticket_str += 'Cliente: ' +str(ticket.client or settings.NOT_APPLY_LABEL) +'\n'
     ticket_str += 'Fecha: ' +ticket.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y - %I:%M %p') +'\n'
     ticket_str += 'Vendedor: ' +ticket.user.get_full_name() +'\n'
     ticket_str += '--------------------------------' +'\n'
@@ -81,7 +81,7 @@ def sell_ticket(request, lottery):
             client=request.POST.get('client') or None)
         #
         if request.user.commission_set.exists():
-            ticket.user_commission=request.user.commission_set.last().percent
+            ticket.user_commission_percent=request.user.commission_set.last().percent
         try:
             # Resolves model validations
             ticket.save()
@@ -95,6 +95,8 @@ def sell_ticket(request, lottery):
                     messages.warning(request, '¡Atención! Revisa tu ticket, debido a un límite de horario un sorteo no fue incluido.', extra_tags='alert-warning')
                     continue
                 _pattern = Pattern.objects.get(pk=pattern)
+                # Validating in the backend the adding of a row_ticket with deactivated pattern
+                if not _pattern.is_active: raise
                 #
                 RowTicket(
                     ticket=ticket,
@@ -126,11 +128,11 @@ def sell_ticket(request, lottery):
             draw_list.append(draw)
     #
     context = {
-        'page_title': 'Venta de ticket',
+        'page_title': 'Venta de ticket - ',
         'lottery': lottery,
         'draw_list': draw_list,
         # IMPORTANT Pattern_set can be passed because a unique_together exists in the model
-        'pattern_list': lottery.pattern_set.all()
+        'pattern_list': lottery.pattern_set.filter(is_active=True)
     }
     return render(request, 'sell_ticket.html', context)
 #
@@ -143,7 +145,7 @@ def ticket(request, ticket, post_sale=False):
     ticket_imagen = t_imagen(ticket)
     ticket_imagen = ticket_imagen.decode('utf-8')
     #
-    return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'post_sale': post_sale, 'ticket_imagen': ticket_imagen})
+    return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket - ', 'ticket': ticket, 'post_sale': post_sale, 'ticket_imagen': ticket_imagen})
 #
 @user_active_required
 @login_required(redirect_field_name=None)
@@ -178,7 +180,7 @@ def last_ticket(request):
         ticket_imagen = t_imagen(ticket)
         ticket_imagen = ticket_imagen.decode('utf-8')
         #
-        return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket', 'ticket': ticket, 'ticket_imagen': ticket_imagen})
+        return render(request, 'ticket_details.html', {'page_title': 'Detalles de Ticket - ', 'ticket': ticket, 'ticket_imagen': ticket_imagen})
     except:
         messages.warning(request, 'No ha vendido tickets aún.', extra_tags='alert-warning')
     return redirect('index')
@@ -202,7 +204,7 @@ def search_ticket(request):
         winner_ticket_list.append(WinningTicket.objects.filter(uuid_ticket=winner_ticket['uuid_ticket']).last())
     # 
     context = {
-        'page_title': 'Resultado de Búsqueda',
+        'page_title': 'Resultado de Búsqueda - ',
         'raw_ticket': raw_ticket,
         'winner_ticket_list': winner_ticket_list,
     }
@@ -223,7 +225,7 @@ def winning_ticket(request, ticket):
         return redirect('index')
     #
     context = {
-        'page_title': 'Detalles de Ticket Ganador',
+        'page_title': 'Detalles de Ticket Ganador - ',
         'winner_ticket': winner_ticket,
         'total_amount_to_pay': total_amount_to_pay,
     }

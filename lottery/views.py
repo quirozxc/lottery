@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 
-from user.decorators import user_active_required, system_manager_required
+from django.core.exceptions import PermissionDenied
+
+from user.decorators import user_active_required, system_manager_required, betting_manager_required
 from .forms import BettingAgencyEditForm
-from lottery.models import BettingAgency
+from lottery.models import BettingAgency, Pattern, Lottery
 
 # Create your views here.
 @system_manager_required
@@ -14,7 +16,7 @@ from lottery.models import BettingAgency
 @login_required(redirect_field_name=None)
 def betting_agency_list(request):
     context = {
-        'page_title': 'Lista de Agencias de Lotería',
+        'page_title': 'Lista de Agencias - ',
         'betting_agency_list': BettingAgency.objects.all(),
     }
     return render(request, 'betting_agency_list.html', context)
@@ -32,8 +34,44 @@ def edit_betting_agency(request, betting_agency):
             return redirect('betting_agency_list')
         else: print(form.errors)
     context = {
-        'page_title': 'Actualizar Agencia de Lotería',
+        'page_title': 'Actualizar Agencia - ',
         'form': BettingAgencyEditForm(instance=betting_agency),
         'betting_agency': betting_agency,
     }
     return render(request, 'edit_betting_agency.html', context)
+#
+@betting_manager_required
+@user_active_required
+@login_required(redirect_field_name=None)
+def edit_pattern(request, lottery, betting_agency):
+    betting_agency = get_object_or_404(BettingAgency, pk=betting_agency)
+    lottery = get_object_or_404(Lottery, pk=lottery)
+    if not request.user.betting_agency == betting_agency: raise PermissionDenied
+    #
+    pattern_set = Pattern.objects.filter(betting_agency=betting_agency).filter(lottery=lottery)
+    #
+    if request.method == 'POST':
+        _changes = None
+        pattern_checked = list(map(int, request.POST.getlist('pattern')))
+        #
+        for pattern in pattern_set:
+            if pattern.pk in pattern_checked:
+                if pattern.is_active == False:
+                    pattern.is_active = True
+                    _changes = True
+            else:
+                if pattern.is_active == True:
+                    pattern.is_active = False
+                    _changes = True
+                #
+            pattern.save()
+        #
+        if _changes: messages.success(request, 'Se actualizaron los pagos de facturas.', extra_tags='alert-success')
+        else: messages.warning(request, 'No se guardó ningún cambio.', extra_tags='alert-warning')
+    #
+    context={
+        'page_title': 'Actualizar Lotería - ',
+        'lottery': lottery,
+        'pattern_set': pattern_set,
+    }
+    return render(request, 'edit_pattern.html', context)

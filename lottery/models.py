@@ -76,6 +76,7 @@ class Pattern(models.Model):
     icon = models.ForeignKey(Icon, on_delete=models.CASCADE)
     bet_multiplier = models.PositiveIntegerField('Bet multiplier')
     minimum_bet = models.PositiveIntegerField('Minimum bet')
+    is_active = models.BooleanField('Can be included in draws', default=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #

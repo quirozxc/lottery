@@ -19,7 +19,7 @@
                                     <option value="{{ bet_agency.pk }}">{{ bet_agency }}</option>
                                 {% endif %}
                                 {% empty %}
-                                    <option>No existen agencias de lotería registradas aún.</option>
+                                    <option selected="selected">No existen agencias de lotería registradas aún.</option>
                             {% endfor %}
                         </select>
                         <label class="" for="id_betting_agency">Agencia de Lotería</label>
@@ -40,7 +40,7 @@
             {% csrf_token %}
             <input type="hidden" name="betting_agency" value="{{ betting_agency.pk }}">
             <div style="overflow-y: scroll;max-height: 448px;">
-                <div class="table-responsive mb-2">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <caption>Cada fila es un resumen de factura, estan ordenadas en forma descendente.</caption>
                         <thead>
@@ -74,7 +74,7 @@
                     </table>
                 </div>
             </div>
-            <div class="d-grid gap-2 d-flex justify-content-end">
+            <div class="d-grid gap-2 d-flex justify-content-end pt-4">
                 <a href="{% url 'index' %}" class="btn btn-lg btn-outline-danger">Limpiar</a>
                 <button class="btn btn-lg btn-outline-success" type="submit">Pagado</button>
             </div>

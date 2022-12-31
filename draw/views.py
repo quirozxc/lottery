@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from user.decorators import user_active_required, betting_agency_required
+from user.decorators import user_active_required, betting_manager_required
 from lottery.decorators import bet_active_required
 
 from datetime import datetime
@@ -15,7 +15,7 @@ from trade.models import RowTicket, WinningTicket
 from draw.models import Draw, DrawResult
 
 # Create your views here.
-@betting_agency_required
+@betting_manager_required
 @bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
@@ -23,11 +23,11 @@ def confirm_draw(request, draw_result):
     if not request.META.get('HTTP_REFERER'): return redirect('index')
     #
     draw_result = get_object_or_404(DrawResult, pk=draw_result)
-    context = {'page_title': 'Confirmación de Resultado', 'draw_result': draw_result}
+    context = {'page_title': 'Confirmación de Resultado - ', 'draw_result': draw_result}
     return render(request, 'confirm_draw.html', context)
 #
 @csrf_protect
-@betting_agency_required
+@betting_manager_required
 @bet_active_required
 @user_active_required
 @login_required(redirect_field_name=None)
@@ -68,7 +68,7 @@ def draw_register(request, lottery):
             draw_to_register_list.append(draw)
     # 
     context = {
-        'page_title': 'Registro de Resultado',
+        'page_title': 'Registro de Resultado - ',
         'lottery': lottery,
         'draw_to_register_list': draw_to_register_list,
         # IMPORTANT Pattern_set can be passed because a unique_together exists in the model
@@ -76,7 +76,7 @@ def draw_register(request, lottery):
     }
     return render(request, 'draw_register.html', context)
 #
-@betting_agency_required
+@betting_manager_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def delete_draw(request, draw_result):

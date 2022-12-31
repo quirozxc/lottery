@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
-from user.decorators import user_active_required, betting_agency_required, system_manager_required
+from user.decorators import user_active_required, betting_manager_required, system_manager_required
 
 from django.views.decorators.csrf import csrf_protect
 
@@ -23,12 +23,12 @@ from io import BytesIO
 import pandas as pd
 
 # Create your views here.
-@betting_agency_required
+@betting_manager_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def create_invoice(request):
     raise_exception_control = None
-    #
+    # Daily invoicing validation
     if request.user.betting_agency.invoice_set.exists():
         if request.user.betting_agency.invoice_set.last().timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).date() == datetime.today().date():
             messages.warning(request, 'Ya existe registrada una factura para el día de hoy.', extra_tags='alert-warning')
@@ -90,7 +90,7 @@ def create_invoice(request):
         return redirect('list_seller')
     return redirect(reverse('list_seller', kwargs= {'post_invoice': int(True)}))
 #
-@betting_agency_required
+@betting_manager_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def export_invoice(request, invoice=0):
@@ -133,12 +133,12 @@ def user_invoice_list(request):
             row.total_sales - row.total_rewards - row.total_commission
         )
     context = {
-        'page_title': 'Lista de Facturas',
+        'page_title': 'Lista de Facturas - ',
         'invoice_list': zip(row_invoice_list, total_collecting),
     }
     return render(request, 'user_invoice.html', context)
 #
-@betting_agency_required
+@betting_manager_required
 @user_active_required
 @login_required(redirect_field_name=None)
 def export_matrix(request, invoice=0):
@@ -185,11 +185,11 @@ def export_matrix(request, invoice=0):
 @login_required(redirect_field_name=None)
 def management(request, betting_agency=None):
     if betting_agency: betting_agency = get_object_or_404(BettingAgency, pk=betting_agency)
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST.get('betting_agency').isdigit():
         betting_agency = get_object_or_404(BettingAgency, pk=request.POST.get('betting_agency'))
     #
     context = {
-        'page_title': 'Administración - Sistema de Lotería',
+        'page_title': 'Administración - ',
         'betting_agency_list': BettingAgency.objects.all(),
         'betting_agency': betting_agency,
     }

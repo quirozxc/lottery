@@ -16,7 +16,7 @@ def banker_required(function):
         return function(request, *args, **kwargs)
     return wrap
 #
-def betting_agency_required(function):
+def betting_manager_required(function):
     def wrap(request, *args, **kwargs):
         if not request.user.is_betting_agency_staff: raise PermissionDenied
         return function(request, *args, **kwargs)
