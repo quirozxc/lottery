@@ -67,9 +67,6 @@ def t_imagen(ticket):
 @user_active_required
 @login_required(redirect_field_name=None)
 def sell_ticket(request, lottery):
-    if not request.user.is_active:
-        messages.warning(request, 'Tu cuenta se encuentra suspendida. Comunicate con tu administrador.', extra_tags='alert-warning')
-        return redirect('logout')
     lottery = get_object_or_404(Lottery, pk=lottery)
     # Redirect if the lottery to select it does not belong to the betting_agency of the current user
     if not lottery in request.user.betting_agency.get_lotteries(): raise PermissionDenied
@@ -85,6 +82,7 @@ def sell_ticket(request, lottery):
         try:
             # Resolves model validations
             ticket.save()
+            row_ticket_to_save = list()
             for draw, pattern, bet_amount in \
                 zip(request.POST.getlist('draw_list'), request.POST.getlist('pattern_list'), request.POST.getlist('bet_amount_list')):
                 # Valid draw...
@@ -92,20 +90,24 @@ def sell_ticket(request, lottery):
                 if (not _draw.schedule.turn > _time) \
                     or (td(hours=_draw.schedule.turn.hour, minutes=_draw.schedule.turn.minute, seconds=_draw.schedule.turn.second) \
                     - td(hours=_time.hour, minutes=_time.minute, seconds=_time.second)) < td(minutes=settings.DRAW_CLOSE_MINUTES):
-                    messages.warning(request, '¡Atención! Revisa tu ticket, debido a un límite de horario un sorteo no fue incluido.', extra_tags='alert-warning')
+                    messages.warning(request, '¡Atención! Revisa el ticket, debido a un límite de horario un sorteo no fue incluido.', extra_tags='alert-warning')
                     continue
                 _pattern = Pattern.objects.get(pk=pattern)
                 # Validating in the backend the adding of a row_ticket with deactivated pattern
                 if not _pattern.is_active: raise
                 #
-                RowTicket(
-                    ticket=ticket,
-                    draw=_draw,
-                    # IMPORTANT pattern_set was conveniently passed
-                    icon=_pattern.icon,
-                    bet_multiplier=_pattern.bet_multiplier,
-                    bet_amount=int(bet_amount)
-                ).save()
+                row_ticket_to_save.append(
+                    RowTicket(
+                        ticket=ticket,
+                        draw=_draw,
+                        # IMPORTANT pattern_set was conveniently passed
+                        icon=_pattern.icon,
+                        bet_multiplier=_pattern.bet_multiplier,
+                        bet_amount=int(bet_amount)
+                    )
+                )
+            #
+            RowTicket.objects.bulk_create(row_ticket_to_save)
             # Important if ticket has no rows
             if not ticket.rowticket_set.exists(): raise
             messages.success(request, 'Un ticket ha sido generado.', extra_tags='alert-success')
@@ -240,13 +242,15 @@ def pay_ticket(request, winner_ticket):
     if not winner_ticket.user == request.user: raise PermissionDenied
     #
     _check_is_a_winning_row = False
+    row_ticket_rewarded = list()
     for row_ticket in winner_ticket.rowticket_set.all():
         if row_ticket.is_a_winning_row():
             _check_is_a_winning_row = True
             row_ticket.winningticket_set.all().delete()
             row_ticket.was_rewarded = True
-            row_ticket.save()
+            row_ticket_rewarded.append(row_ticket)
     if _check_is_a_winning_row:
+        RowTicket.objects.bulk_update(row_ticket_rewarded, ['was_rewarded'])
         messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
 #

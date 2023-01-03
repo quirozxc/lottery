@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 
 from invoice.models import Invoice, RowInvoice
-from trade.models import RowTicket
+from trade.models import RowTicket, Ticket
 from lottery.models import BettingAgency
 
 from decimal import Decimal
@@ -40,6 +40,7 @@ def create_invoice(request):
         system_commission=request.user.betting_agency.system_commission,
     )
     try:
+        # To generate pk.
         invoice.save()
         #
         _pending_draws = _seller_without_tickets = 0
@@ -48,6 +49,7 @@ def create_invoice(request):
             total_sales = total_rewards = total_rewards_to_pay = total_commission = Decimal('0.00')
             row_invoice = RowInvoice(invoice=invoice)
             row_invoice.save()
+            ticket_to_update = list()
             for ticket in seller.ticket_set.filter(row_invoice__isnull=True).filter(is_invalidated=False):
                 # If has pending draws, it is not included for invoicing
                 if ticket.has_pending_draws():
@@ -62,7 +64,9 @@ def create_invoice(request):
                 total_commission += _ticket_total_amount * Decimal(ticket.user_commission_percent / 100)
                 #
                 ticket.row_invoice = row_invoice
-                ticket.save()
+                ticket_to_update.append(ticket)
+            #
+            Ticket.objects.bulk_update(ticket_to_update, ['row_invoice'])
             # If seller does not have tickets sold to invoice
             if not total_sales:
                 _seller_without_tickets += 1
@@ -213,18 +217,23 @@ def pay_to_manager(request):
             messages.error(request, 'Error inesperado, no se registro nigún cambio.', extra_tags='alert-danger')
             return redirect('management')
         #
+        invoice_to_update = list()
         for invoice in bet_agency_invoices:
             if invoice.pk in bet_agency_checked:
                 if invoice.was_paid == False:
                     invoice.was_paid = True
+                    invoice_to_update.append(invoice)
                     _changes = True
             else:
                 if invoice.was_paid == True:
                     invoice.was_paid = False
+                    invoice_to_update.append(invoice)
                     _changes = True
                 #
-            invoice.save()
             #
+        #
+        Invoice.objects.bulk_update(invoice_to_update, ['was_paid'])
+        #
         if _changes: messages.success(request, 'Se actualizaron los pagos de facturas.', extra_tags='alert-success')
         else: messages.warning(request, 'No se guardó ningún cambio.', extra_tags='alert-warning')
     return redirect(reverse('management', kwargs={'betting_agency': request.POST.get('betting_agency')}))

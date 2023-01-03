@@ -54,19 +54,24 @@ def edit_pattern(request, lottery, betting_agency):
         _changes = None
         pattern_checked = list(map(int, request.POST.getlist('pattern')))
         #
+        pattern_to_update = list()
         for pattern in pattern_set:
             if pattern.pk in pattern_checked:
                 if pattern.is_active == False:
                     pattern.is_active = True
+                    pattern_to_update.append(pattern)
                     _changes = True
             else:
                 if pattern.is_active == True:
                     pattern.is_active = False
+                    pattern_to_update.append(pattern)
                     _changes = True
                 #
-            pattern.save()
+            #
         #
-        if _changes: messages.success(request, 'Se actualizaron los pagos de facturas.', extra_tags='alert-success')
+        Pattern.objects.bulk_update(pattern_to_update, ['is_active'])
+        #
+        if _changes: messages.success(request, 'Se actualizaron los datos de la lotería.', extra_tags='alert-success')
         else: messages.warning(request, 'No se guardó ningún cambio.', extra_tags='alert-warning')
     #
     context={

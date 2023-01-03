@@ -120,7 +120,9 @@ def edit_seller(request, seller):
     if request.method == 'POST':
         form = SellerEditForm(request.POST, instance=seller)
         if form.is_valid():
-            seller = form.save()
+            seller = form.save(commit=False)
+            if seller == request.user: seller.is_active = True
+            seller.save()
             #
             if not seller.commission_set.exists(): seller.commission_set.create(percent=0)
             #
@@ -145,6 +147,7 @@ def reset_password(request, seller):
     #
     if not seller.banker == request.user: raise PermissionDenied
     #
+    if seller == request.user: return redirect(index)
     seller.set_password(settings.DEFAULT_PASSWORD)
     seller.save()
     messages.success(request, 'La contraseña para: "'+seller.username +'", ha sido reseteada.', extra_tags='alert-success')

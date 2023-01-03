@@ -12,9 +12,12 @@ def is_holiday(holidays=settings.HOLIDAYS):
 #
 def draw_job():
     if not is_holiday():
+        draw_to_create = list()
         for lottery in Lottery.objects.all():
             for turn in lottery.schedule_set.filter(day__exact=datetime.today().weekday()):
-                Draw(schedule=turn).save()
+                draw_to_create.append(Draw(schedule=turn))
+        Draw.objects.bulk_create(draw_to_create)
+    #
 #
 class DrawJob(CronJobBase):
     RUN_AT_TIMES = ['00:00']

@@ -51,12 +51,16 @@ def draw_register(request, lottery):
         draw_result.save()
         # Update row_ticket winners
         winners = RowTicket.objects.filter(draw=draw).filter(icon=icon).filter(ticket__is_invalidated=False)
+        winner_ticket = list()
         for winner_ticket_row in winners:
-            WinningTicket(
-                row_ticket=winner_ticket_row,
-                draw_result=draw_result,
-                uuid_ticket=winner_ticket_row.ticket.get_readable_uuid()
-            ).save()
+            winner_ticket.append(
+                WinningTicket(
+                    row_ticket=winner_ticket_row,
+                    draw_result=draw_result,
+                    uuid_ticket=winner_ticket_row.ticket.get_readable_uuid()
+                )
+            )
+        WinningTicket.objects.bulk_create(winner_ticket)
         #
         messages.success(request, 'Se ha registrado un resultado (Ganadores: ' +str(winners.count()) +').', extra_tags='alert-success')
         return redirect(reverse('confirm_draw', kwargs={'draw_result': draw_result.pk}))

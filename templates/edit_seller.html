@@ -8,14 +8,20 @@
             {% csrf_token %}
             <h1 class="h2 mb-3 fw-normal">Actualizar Vendedor</h1>
             <div class="form-floating mb-2">
-                <input type="text" class="form-control" name="username" value="{{ form.username.value }}" id="id_username" autocapitalize="none" autocomplete="username" maxlength="150" required placeholder="Nombre de Usuario">
+                <input type="text" class="form-control" name="username" value="{{ form.username.value }}" id="id_username" autocapitalize="none" autocomplete="username" maxlength="150" required placeholder="Nombre de Usuario" {% if form.username.value == request.user.username %} readonly {% endif %}>
                 <label for="id_username">Nombre de Usuario</label>
             </div>
             <div class="text-start text-muted mb-4">
                 <span class="helptext">Requerido. Solo letras, dígitos y @/./+/-/_.</span>
             </div>
             <div class="text-start text-muted mb-4">
-                <span>Si el vendedor ha olvidado la contraseña, puede presionar <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>{{ DEFAULT_PASSWORD }}</i></span>
+                {% if form.username.value == request.user.username %}
+                <span>No puedes resetear la contraseña desde este formulario. Pero si la puedes cambiar al presionar <a href="{% url 'password_change' %}">aquí</a>.</span>
+                {% else %}
+                <span>Si el vendedor ha olvidado la contraseña, puede presionar 
+                    <a href="{% url 'reset_password' seller.pk %}">aquí</a> para restaurar la misma a: <i>{{ DEFAULT_PASSWORD }}</i>
+                </span>
+                {% endif %}
             </div>
             <div class="form-floating mt-4 mb-2">
                 <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" maxlength="150" required placeholder="Nombre">
@@ -38,7 +44,7 @@
             </div>
 
             <div class="form-check form-switch text-start mb-2">
-                <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %}>
+                <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %} checked {% endif %} {% if form.username.value == request.user.username %} disabled {% endif %}>
                 <label class="form-check-label" for="id_is_active">Casilla de estado Activo/Suspendido</label>
             </div>
             <div class="text-start text-muted mb-4">
