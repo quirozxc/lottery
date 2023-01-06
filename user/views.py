@@ -96,7 +96,7 @@ def create_seller(request):
 @user_active_required
 @login_required(redirect_field_name=None)
 def list_seller(request, post_invoice=False):
-    if request.method == 'POST' and request.POST.get('invoice').isdigit():
+    if request.method == 'POST' and request.POST.get('invoice') and request.POST.get('invoice').isdigit():
         if request.POST.get('matrix'):
             return redirect(reverse('export_matrix', kwargs={'invoice': request.POST.get('invoice')}))
         return redirect(reverse('export_invoice', kwargs={'invoice': request.POST.get('invoice')}))

@@ -68,9 +68,38 @@
             <a href="{% url 'create_invoice' %}" type="button" class="btn btn-lg btn-outline-success">Facturar</a>
         </div>
 
+        <h1 class="h2 px-2 mb-3 fw-normal text-start mt-4">Descargas</h1>
+
+        <form action="{% url 'export_trade' %}" method="post">
+            {% csrf_token %}
+            <h1 class="h4 px-2 mb-3 fw-normal text-start mt-4">Registro de Ventas</h1>
+            <div class="row g-2 mb-2">
+                <div class="col-5">
+                    <div class="form-floating mb-2">
+                        <input type="date" class="form-control" name="from_date" value="" id="id_from_date" required>
+                        <label for="id_from_date">Desde el día</label>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="form-floating mb-2">
+                        <input type="date" class="form-control" name="to_date" value="" id="id_to_date" required>
+                        <label for="id_to_date">Hasta el Día</label>
+                    </div>
+                </div>
+                <div class="col-2 mt-3">
+                    <button type="submit" class="btn btn-outline-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </form>
+
         <form action="" method="post">
             {% csrf_token %}
-            <h1 class="h2 px-2 mb-3 fw-normal text-start mt-3">Descargar Factura</h1>
+            <h1 class="h4 px-2 mb-3 fw-normal text-start mt-4">Registro de Facturas</h1>
             <div class="row g-2 mb-2">
                 <div class="col-10">
                     <div class="form-floating">

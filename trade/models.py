@@ -10,6 +10,8 @@ from django.core.validators import MaxValueValidator
 from decimal import Decimal
 import uuid
 
+from django.utils import timezone
+
 # Create your models here.
 class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -73,12 +75,17 @@ class RowTicket(models.Model):
     bet_multiplier = models.PositiveIntegerField('Bet multiplier')
     bet_amount = models.DecimalField('Bet amount', max_digits=6, decimal_places=2)
     was_rewarded = models.BooleanField('Was rewarded', default=False)
+    payment = models.DateTimeField('Payment timestamp', null=True, blank=True)
     #
     timestamp = models.DateTimeField(auto_now_add=True)
     #
     class Meta:
         db_table = 'row_ticket'
         verbose_name = 'Row Ticket'
+    #
+    def clean(self):
+        if self.was_rewarded == True: self.payment = timezone.now()
+        return super().clean()
     #
     def bet_amount_to_pay(self): return self.bet_amount *self.bet_multiplier
     #

@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.core.exceptions import PermissionDenied
 
@@ -6,10 +7,11 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from user.decorators import user_active_required
+from user.decorators import user_active_required, betting_manager_required
 from lottery.decorators import bet_active_required
 
 from datetime import datetime, timedelta as td
+from django.utils import timezone
 
 from django.conf import settings
 
@@ -18,6 +20,8 @@ from trade.models import Ticket, RowTicket, WinningTicket
 from draw.models import Draw
 
 from decimal import Decimal
+
+import pandas as pd
 #
 from PIL import Image, ImageDraw, ImageFont
 
@@ -253,4 +257,61 @@ def pay_ticket(request, winner_ticket):
         RowTicket.objects.bulk_update(row_ticket_rewarded, ['was_rewarded'])
         messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
+#
+@betting_manager_required
+@user_active_required
+@login_required(redirect_field_name=None)
+def export_trade(request):
+    if request.method == 'POST':
+        from_date = datetime.strptime(request.POST.get('from_date'), '%Y-%m-%d')
+        to_date = datetime.strptime(request.POST.get('to_date'), '%Y-%m-%d')
+        to_date = datetime.combine(to_date, to_date.time().max)
+        utc=pytz.UTC
+        from_date = utc.localize(from_date)
+        to_date = utc.localize(to_date)
+        #
+        if to_date > from_date:
+            trade = [{
+                'Fecha': row.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y'),
+                'Hora': row.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%I:%M %p'),
+                'Lotería': row.draw.schedule.lottery,
+                'Vendedor': row.ticket.user.get_full_name(),
+                'Cliente': row.ticket.get_client_or_notapply(),
+                'Ticket': row.ticket.get_readable_uuid(),
+                'Elección': row.icon.name,
+                'Hora de Sorteo': row.draw.schedule.turn.strftime('%I:%M %p'),
+                'Resultado de Sorteo': row.draw.drawresult_set.last().icon.name if row.draw.drawresult_set.last() else 'Sin Resultado Registrado',
+                'Apuesta': row.bet_amount,
+                'Multiplicador': row.bet_multiplier,
+                'Premio': row.bet_amount_to_pay() if row.was_rewarded or row.is_a_winning_row() else Decimal('0.00'),
+                'Pendiente': row.is_a_winning_row(),
+                'Pagado': row.was_rewarded,
+                'Fecha de Pago': row.payment.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y - %I:%M %p') if row.payment else settings.NOT_APPLY_LABEL,
+                'Total del Ticket': row.ticket.get_total_bet_amount(),
+                'Comisión del Ticket': row.ticket.user_commission_percent,
+                'Facturación': row.ticket.row_invoice.timestamp.astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%d/%m/%Y - %I:%M %p') if row.ticket.row_invoice else 'Sin Factura Asignada',
+            } for row in RowTicket.objects.filter(
+                ticket__user__betting_agency=request.user.betting_agency,
+                timestamp__gte=from_date,
+                timestamp__lte=to_date,)]
+            #
+            if not trade:
+                messages.warning(request, 'No hay datos en el rango de fecha seleccionado.', extra_tags='alert-warning')
+                return redirect('list_seller')
+            #
+            df_invoices = pd.DataFrame.from_dict(trade)
+            with BytesIO() as b:
+                #
+                excel_writer = pd.ExcelWriter(b, engine='xlsxwriter')
+                df_invoices.to_excel(excel_writer, sheet_name='Venta de Ticket')
+                excel_writer.close()
+                #
+                response = HttpResponse(b.getvalue(), headers={
+                    'Content-Type': 'application/vnd.ms-excel',
+                    'Content-Disposition': 'attachment; filename="Venta de ticket - ' +str(from_date.date()) +' - ' +str(to_date.date()) +'.xlsx"',
+                })
+                return response
+            #
+        else: messages.error(request, 'Error al generar el reporte, verifique el rango de fechas.', extra_tags='alert-danger')
+    return redirect('list_seller')
 #
