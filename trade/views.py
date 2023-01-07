@@ -251,10 +251,13 @@ def pay_ticket(request, winner_ticket):
         if row_ticket.is_a_winning_row():
             _check_is_a_winning_row = True
             row_ticket.winningticket_set.all().delete()
+            #
             row_ticket.was_rewarded = True
+            row_ticket.payment = timezone.now()
+            #
             row_ticket_rewarded.append(row_ticket)
     if _check_is_a_winning_row:
-        RowTicket.objects.bulk_update(row_ticket_rewarded, ['was_rewarded'])
+        RowTicket.objects.bulk_update(row_ticket_rewarded, ['was_rewarded', 'payment'])
         messages.success(request, 'Se ha registrado el pago de un ticket ganador.', extra_tags='alert-success')
     return redirect('index')
 #

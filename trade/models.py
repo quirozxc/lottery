@@ -83,10 +83,6 @@ class RowTicket(models.Model):
         db_table = 'row_ticket'
         verbose_name = 'Row Ticket'
     #
-    def clean(self):
-        if self.was_rewarded == True: self.payment = timezone.now()
-        return super().clean()
-    #
     def bet_amount_to_pay(self): return self.bet_amount *self.bet_multiplier
     #
     def is_a_winning_row(self): return self.winningticket_set.exists()
