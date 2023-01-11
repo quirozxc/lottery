@@ -10,8 +10,6 @@ from django.core.validators import MaxValueValidator
 from decimal import Decimal
 import uuid
 
-from django.utils import timezone
-
 # Create your models here.
 class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
